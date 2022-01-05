@@ -1,15 +1,16 @@
-﻿using System;
+﻿using ScratchToCS;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Remoting;
 
-namespace SToCSTranspiler
+namespace TestApp
 {
     class Program
     {
-        static double maxTime = 0.5;
+        static double _maxTime = 0.5;
         static List<object> ReadFile(string path)
         {
             try
@@ -88,27 +89,17 @@ namespace SToCSTranspiler
                         var dScratch = Transpiler.JsonToDScratch(json);
                         var funcExpression = Transpiler.DScratchToExpression(dScratch);
                         var compiledExpression = Transpiler.Compile(funcExpression);
-                        var (outputData, error) = Transpiler.Run(TimeSpan.FromSeconds(maxTime), compiledExpression, new List<object>(input));
+                        var outputData = Transpiler.Run(TimeSpan.FromSeconds(_maxTime), compiledExpression, new List<object>(input));
 
-                        switch (error)
-                        {
-                            case 0:
-                                Console.WriteLine($"Ответ {(outputData.SequenceEqual(output) ? "верный" : "неверный")}. ");
-                                break;
-                            case 1:
-                                Console.WriteLine($"Время выполнения программы превысило заданное ограничение ({maxTime} сек).");
-                                break;
-                            case 2:
-                                Console.WriteLine("Не был обнаружен инициализирующий блок \"Когда флаг нажат\".");
-                                break;
-                        }
+                        Console.WriteLine($"Ответ {(outputData.SequenceEqual(output) ? "верный" : "неверный")}. ");
                         outputData.ForEach(od => resOutput += $"{od};");
                         resOutput = resOutput.Remove(resOutput.Length - 1);
                         resOutput += "\n";
                     }
-                    catch
+                    catch(Exception e)
                     {
-                        Console.WriteLine("Непредвиденная ошибка.");
+                        Console.WriteLine(e is TestException ? 
+                            e.Message : "Непредвиденная ошибка.");
                     }
                 }
                 using (var w = new StreamWriter($"OUTPUT\\{fileName}.txt"))

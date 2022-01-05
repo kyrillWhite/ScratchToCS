@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using System.Globalization;
 using System.Threading;
 
-namespace SToCSTranspiler
+namespace ScratchToCS
 {
     public static class Transpiler
     {
@@ -57,7 +57,7 @@ namespace SToCSTranspiler
             var targets = root.GetProperty("targets").EnumerateArray().ToList();
             if (targets.Count < 2)
             {
-                return null; // Спрайт был удален
+                throw new TestException("Исходный спрайт был удален.");
             }
             var stageTarget = targets[0]; 
             var spriteTarget = targets[1];
@@ -96,7 +96,7 @@ namespace SToCSTranspiler
                 case JsonValueKind.False:
                     return je.GetRawText();
                 default:
-                    return null;
+                    return 0;
             }
         }
 
@@ -110,7 +110,7 @@ namespace SToCSTranspiler
             JsonElement jVariables;
             if (!target.TryGetProperty("variables", out jVariables))
             {
-                return null;
+                return new Dictionary<string, SVariable>();
             }
             var lVariables = jVariables.EnumerateObject().ToList();
             var dVariables = new Dictionary<string, SVariable>();
@@ -163,7 +163,7 @@ namespace SToCSTranspiler
             JsonElement jBlocks;
             if (!target.TryGetProperty("blocks", out jBlocks))
             {
-                return null;
+                throw new TestException("В программе отстутствуют какие либо блоки.");
             }
             var lBlocks = jBlocks.EnumerateObject().ToList();
             var dBlocks = new Dictionary<string, SBlock>();
@@ -313,7 +313,7 @@ namespace SToCSTranspiler
             var startProgBlock = dScratch.Blocks.FirstOrDefault(b => b.Value.Opcode == Opcode.EventWhenflagclicked).Value;
             if (startProgBlock == null)
             {
-                return null; // Программа не имеет начала
+                throw new TestException("Не был обнаружен инициализирующий блок \"Когда флаг нажат\".");
             }
 
             var dMainVariables = new Dictionary<string, ParameterExpression>();
@@ -935,7 +935,7 @@ namespace SToCSTranspiler
         /// <returns>Скомпилированная из дерева выражений функция.</returns>
         public static Func<CancellationToken, List<object>, List<object>> Compile(Expression<Func<CancellationToken, List<object>, List<object>>> expression)
         {
-            return expression is null ? null : expression.Compile();
+            return expression.Compile();
         }
 
         /// <summary>
@@ -945,18 +945,17 @@ namespace SToCSTranspiler
         /// <param name="function">Выполняемая функция.</param>
         /// <param name="parameters">Параметры функции.</param>
         /// <returns>Возвращенное функцией значение и значение ошибки выполнения.</returns>
-        public static (List<object>, int) Run(TimeSpan timeout, Func<CancellationToken, List<object>, List<object>> function, List<object> parameters)
+        public static List<object> Run(TimeSpan timeout, Func<CancellationToken, List<object>, List<object>> function, List<object> parameters)
         {
-            if (function is null)
-            {
-                return (new List<object>(), 2);
-            }
-
             var source = new CancellationTokenSource();
             source.CancelAfter(timeout);
             var task = Task.Run(() => function(source.Token, parameters));
             var res = task.Result;
-            return source.IsCancellationRequested ? (new List<object>(), 1) : (res, 0);
+            if (source.IsCancellationRequested)
+            {
+                throw new TestException($"Время выполнения программы превысило заданное ограничение ({timeout.TotalSeconds} сек).");
+            }
+            return res;
         }
     }
 }
