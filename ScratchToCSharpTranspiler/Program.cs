@@ -13,7 +13,6 @@ namespace SToCSTranspiler
         {
             string scratchPath;
             string inputPath;
-            string outputPath;
             while (true)
             {
                 Console.Write("Введите путь до файла Scratch программы формата .sb3\nScratch: ");
@@ -50,17 +49,22 @@ namespace SToCSTranspiler
             }
 
             Transpiler.ChangeSpecValues();
-            var json  = Transpiler.ScratchToJson(scratchPath);
+            var json = Transpiler.ScratchToJson(scratchPath);
             var dScratch = Transpiler.JsonToDScratch(json);
             var funcExpression = Transpiler.DScratchToExpression(dScratch);
             var compiledExpression = Transpiler.Compile(funcExpression);
-            var (outputData, isTimeOut) = Transpiler.Run(TimeSpan.FromSeconds(2), compiledExpression, input);
+            var (outputData, error) = Transpiler.Run(TimeSpan.FromSeconds(2), compiledExpression, input);
 
-            if (isTimeOut)
+            switch (error)
             {
-                Console.WriteLine("Время выполнения программы превысило заданное ограничение (2 сек).");
-                Console.ReadKey();
-                return;
+                case 1:
+                    Console.WriteLine("Время выполнения программы превысило заданное ограничение (2 сек).");
+                    Console.ReadKey();
+                    return;
+                case 2:
+                    Console.WriteLine("Не был обнаружен инициализирующий блок \"Когда флаг нажат\".");
+                    Console.ReadKey();
+                    return;
             }
 
             using (var w = new StreamWriter("OUTPUT.txt"))

@@ -169,6 +169,11 @@ namespace SToCSTranspiler
             var dBlocks = new Dictionary<string, SBlock>();
             foreach (var lBlock in lBlocks)
             {
+                if (lBlock.Value.ValueKind == JsonValueKind.Array)
+                {
+                    continue;
+                }
+
                 var opcode = lBlock.Value.GetProperty("opcode").GetString();
                 var parentId = lBlock.Value.GetProperty("parent").GetString();
                 var nextId = lBlock.Value.GetProperty("next").GetString();
@@ -277,17 +282,16 @@ namespace SToCSTranspiler
                         }
 
                         JsonElement jArgumentNames;
-                        List<string> lArgumentNames;
+                        List<string> lArgumentNames = new List<string>(); ;
                         if (jMutation.TryGetProperty("argumentnames", out jArgumentNames))
                         {
                             var argumentNames = jArgumentNames.GetString();
-                            argumentNames = argumentNames.Remove(argumentNames.Length - 2, 2);
-                            argumentNames = argumentNames.Remove(0, 2);
-                            lArgumentNames = argumentNames.Split("\",\"").ToList();
-                        }
-                        else
-                        {
-                            lArgumentNames = new List<string>();
+                            if (argumentNames != "[]")
+                            {
+                                argumentNames = argumentNames.Remove(argumentNames.Length - 2, 2);
+                                argumentNames = argumentNames.Remove(0, 2);
+                                lArgumentNames = argumentNames.Split("\",\"").ToList();
+                            }
                         }
 
                         mutation = new SMutation(proccode, lArguments, lArgumentNames);
@@ -304,7 +308,7 @@ namespace SToCSTranspiler
         /// </summary>
         /// <param name="dScratch">Набор словарей блоков, переменных и списков.</param>
         /// <returns>Лямда функция дерева выражений.</returns>
-        public static Expression<Func<List<object>, List<object>>> DScratchToExpression(DScratch dScratch)
+        public static Expression<Func<CancellationToken, List<object>, List<object>>> DScratchToExpression(DScratch dScratch)
         {
             var startProgBlock = dScratch.Blocks.FirstOrDefault(b => b.Value.Opcode == Opcode.EventWhenflagclicked).Value;
             if (startProgBlock == null)
@@ -335,6 +339,9 @@ namespace SToCSTranspiler
             // Также является обязательным аргументом лямбда выражения.
             var lInputExpression = Expression.Parameter(typeof(List<object>), "INPUTS");
 
+            // Создание токена отмены.
+            var cancelTokenExpression = Expression.Parameter(typeof(CancellationToken), "CANCEL_TOKEN");
+
             // Создание списка вывода. Операторы вывода будут отправлять в него данные.
             var lOutputExpression = Expression.Parameter(typeof(List<object>), "OUTPUTS");
             dMainVariables.Add("OUTPUTS", lOutputExpression);
@@ -353,6 +360,7 @@ namespace SToCSTranspiler
             lMainExpressions.Add(Expression.Assign(dMainVariables["ANSWER"], Expression.Constant("", typeof(object))));
             // INPUTS нельзя инициализировать, т.к. он является аргументом лямбда функции
             dMainVariables.Add("INPUTS", lInputExpression);
+            dMainVariables.Add("CANCEL_TOKEN", cancelTokenExpression);
 
             // Создание словаря функций
             var dFuncExpressions = new Dictionary<string, EFunc>();
@@ -364,8 +372,8 @@ namespace SToCSTranspiler
                 var pFunc = Expression.Variable(typeof(Action<List<object>>), fName.Mutation.Proccode);
                 dFuncExpressions.Add(fName.Mutation.Proccode, new EFunc(pFunc, pArgs, fName.Mutation));
             }
-            // Инициализация параметров функций
 
+            // Инициализация параметров функций
             foreach (var funcExpr in dFuncExpressions) {
 
                 lMainExpressions.Add(Expression.Assign(funcExpr.Value.Parameter, Expression.New(typeof(List<object>))));
@@ -405,7 +413,7 @@ namespace SToCSTranspiler
             lMainExpressions.Add(lOutputExpression); // Возвращаемое значение
 
             var mainFuncBlock = Expression.Block(lMainVariables, lMainExpressions);
-            return Expression.Lambda<Func<List<object>, List<object>>>(mainFuncBlock, lInputExpression);
+            return Expression.Lambda<Func<CancellationToken, List<object>, List<object>>>(mainFuncBlock, cancelTokenExpression, lInputExpression);
         }
 
         /// <summary>
@@ -466,6 +474,12 @@ namespace SToCSTranspiler
                         var lExpressions = block.Inputs.ContainsKey("SUBSTACK") && block.Inputs["SUBSTACK"].Value != null ?
                             GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget) :
                             new List<Expression>();
+
+                        // Проверка времени выполнения
+                        var isCancellationRequested = Expression.Property(gVariables["CANCEL_TOKEN"], "IsCancellationRequested");
+                        var cancelCondition = Expression.IfThen(isCancellationRequested, Expression.Return(returnTarget));
+                        lExpressions.Add(cancelCondition);
+
                         expression = Expression.Loop(Expression.Block(lExpressions));
                         break;
                     }
@@ -483,6 +497,12 @@ namespace SToCSTranspiler
                                         Expression.Break(endLoop)));
                         loopBody.AddRange(lExpressions);
                         loopBody.Add(Expression.PostIncrementAssign(i));
+
+                        // Проверка времени выполнения
+                        var isCancellationRequested = Expression.Property(gVariables["CANCEL_TOKEN"], "IsCancellationRequested");
+                        var cancelCondition = Expression.IfThen(isCancellationRequested, Expression.Return(returnTarget));
+                        loopBody.Add(cancelCondition);
+
                         expression = Expression.Block(
                             new[] { i },
                             Expression.Assign(i, Expression.Constant(1)),
@@ -540,6 +560,12 @@ namespace SToCSTranspiler
                         loopBody.Add(Expression.IfThen(Expression.Call(typeof(Operations), "ToBool", null, condition),
                                         Expression.Break(endLoop)));
                         loopBody.AddRange(lExpressions);
+
+                        // Проверка времени выполнения
+                        var isCancellationRequested = Expression.Property(gVariables["CANCEL_TOKEN"], "IsCancellationRequested");
+                        var cancelCondition = Expression.IfThen(isCancellationRequested, Expression.Return(returnTarget));
+                        loopBody.Add(cancelCondition);
+
                         expression = Expression.Loop(Expression.Block(loopBody), endLoop);
                         break;
                     }
@@ -814,6 +840,12 @@ namespace SToCSTranspiler
                                 lArgs[i]));
                         }
                         lpArgs.Add(Expression.Invoke(eFunc.Function, eFunc.Parameter));
+
+                        // Проверка времени выполнения
+                        var isCancellationRequested = Expression.Property(gVariables["CANCEL_TOKEN"], "IsCancellationRequested");
+                        var cancelCondition = Expression.IfThen(isCancellationRequested, Expression.Return(returnTarget));
+                        lpArgs.Add(cancelCondition);
+
                         expression = Expression.Block(lpArgs);
                         break;
                     }
@@ -880,9 +912,9 @@ namespace SToCSTranspiler
         /// </summary>
         /// <param name="expression">Дерево выражений.</param>
         /// <returns>Скомпилированная из дерева выражений функция.</returns>
-        public static Func<List<object>, List<object>> Compile(Expression<Func<List<object>, List<object>>> expression)
+        public static Func<CancellationToken, List<object>, List<object>> Compile(Expression<Func<CancellationToken, List<object>, List<object>>> expression)
         {
-            return expression.Compile();
+            return expression is null ? null : expression.Compile();
         }
 
         /// <summary>
@@ -891,18 +923,19 @@ namespace SToCSTranspiler
         /// <param name="timeout">Максимальное время выполнения.</param>
         /// <param name="function">Выполняемая функция.</param>
         /// <param name="parameters">Параметры функции.</param>
-        /// <returns>Возвращенное функцией значение и флаг превышения функцией указанного времени.</returns>
-        public static (List<object>, bool) Run(TimeSpan timeout, Func<List<object>, List<object>> function, List<object> parameters)
+        /// <returns>Возвращенное функцией значение и значение ошибки выполнения.</returns>
+        public static (List<object>, int) Run(TimeSpan timeout, Func<CancellationToken, List<object>, List<object>> function, List<object> parameters)
         {
-            var task = Task.Run(() => function(parameters));
-            var delay = Task.Delay(timeout); 
-            var timeoutTask = Task.WhenAny(task, delay);
-
-            if (timeoutTask.Result == task)
+            if (function is null)
             {
-                return (task.Result, false);
+                return (new List<object>(), 2);
             }
-            return (new List<object>(), true);
+
+            var source = new CancellationTokenSource();
+            source.CancelAfter(timeout);
+            var task = Task.Run(() => function(source.Token, parameters));
+            var res = task.Result;
+            return source.IsCancellationRequested ? (new List<object>(), 1) : (res, 0);
         }
     }
 }
