@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SToCSTranspiler
+namespace ScratchToCS
 {
     public static class Operations
     {
