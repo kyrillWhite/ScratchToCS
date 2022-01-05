@@ -9,25 +9,32 @@ namespace SToCSTranspiler
 {
     class Program
     {
+        static double maxTime = 0.5;
         static List<object> ReadFile(string path)
         {
-            var res = new List<object>();
-            string s;
-            using (var r = new StreamReader(path))
+            try
             {
-                while ((s = r.ReadLine()) != null)
+                var res = new List<object>();
+                string s;
+                using (var r = new StreamReader(path))
                 {
-                    res.Add(s);
+                    while ((s = r.ReadLine()) != null)
+                    {
+                        res.Add(s);
+                    }
                 }
+                return res;
             }
-            return res;
+            catch
+            {
+                return new List<object>();
+            }
         }
 
         static void Main(string[] args)
         {
             var programsPath = "";
-            var inputPath = "";
-            var outputPath = "";
+            var testsPath = "";
 
             while (true)
             {
@@ -36,7 +43,7 @@ namespace SToCSTranspiler
                 programsPath = programsPath.Trim('\"');
                 if (!(Directory.Exists(programsPath)))
                 {
-                    Console.WriteLine("Указанная директория не найдена.");
+                    Console.WriteLine("Указанная директория не найдена.\n");
                     programsPath = "";
                     continue;
                 }
@@ -44,75 +51,73 @@ namespace SToCSTranspiler
             }
             while (true)
             {
-                Console.Write("Введите путь до файла с входными данными (Данные читаются построчно)\nINPUT: ");
-                inputPath = Console.ReadLine();
-                inputPath = inputPath.Trim('\"');
-                if (!(File.Exists(inputPath)))
+                Console.Write("Введите путь до директории с тестами. (Один тест - одна папка с файлами input.txt и output.txt)\nДиректория с тестами: ");
+                testsPath = Console.ReadLine();
+                testsPath = testsPath.Trim('\"');
+                if (!(Directory.Exists(testsPath)))
                 {
-                    Console.WriteLine("Файл не найден.");
+                    Console.WriteLine("Указанная директория не найдена.\n");
                     continue;
                 }
                 break;
             }
-            while (true)
-            {
-                Console.Write("Введите путь до файла с эталонными выходными данными (Данные читаются построчно)\nOUTPUT: ");
-                outputPath = Console.ReadLine();
-                outputPath = outputPath.Trim('\"');
-                if (!(File.Exists(outputPath)))
-                {
-                    Console.WriteLine("Файл не найден.");
-                    continue;
-                }
-                break;
-            }
+            Directory.CreateDirectory("OUTPUT");
+            var tests = Directory.GetDirectories(testsPath);
+
+            Console.WriteLine();
 
             var programs = Directory.GetFiles(programsPath, "*.sb3");
-            var input = ReadFile(inputPath);
-            var output = ReadFile(outputPath);
-            var resOutput = "";
-
             foreach (var programPath in programs)
             {
                 var fileName = Path.GetFileNameWithoutExtension(programPath);
-                resOutput += $"{fileName};";
-                Console.Write($"{fileName}: ");
-                try
-                {
-                    Transpiler.ChangeSpecValues();
-                    var json = Transpiler.ScratchToJson(programPath);
-                    var dScratch = Transpiler.JsonToDScratch(json);
-                    var funcExpression = Transpiler.DScratchToExpression(dScratch);
-                    var compiledExpression = Transpiler.Compile(funcExpression);
-                    var (outputData, error) = Transpiler.Run(TimeSpan.FromSeconds(2), compiledExpression, new List<object>(input));
+                Console.Write($"{fileName}\n");
+                var resOutput = "";
 
-                    switch (error)
-                    {
-                        case 0:
-                            Console.WriteLine($"Ответ {(outputData.SequenceEqual(output) ? "верный" : "неверный")}. ");
-                            break;
-                        case 1:
-                            Console.WriteLine("Время выполнения программы превысило заданное ограничение (2 сек).");
-                            break;
-                        case 2:
-                            Console.WriteLine("Не был обнаружен инициализирующий блок \"Когда флаг нажат\".");
-                            break;
-                    }
-                    outputData.ForEach(od => resOutput += $"{od};");
-                    resOutput = resOutput.Remove(resOutput.Length - 1);
-                    resOutput += "\n";
-                }
-                catch
+                foreach (var test in tests)
                 {
-                    Console.WriteLine("Непредвиденная ошибка.");
+                    var testName = Path.GetFileNameWithoutExtension(test);
+                    var input = ReadFile($"{test}\\input.txt");
+                    var output = ReadFile($"{test}\\output.txt");
+                    resOutput += $"{testName};";
+                    Console.Write($"{testName}: ");
+
+                    try
+                    {
+                        Transpiler.ChangeSpecValues();
+                        var json = Transpiler.ScratchToJson(programPath);
+                        var dScratch = Transpiler.JsonToDScratch(json);
+                        var funcExpression = Transpiler.DScratchToExpression(dScratch);
+                        var compiledExpression = Transpiler.Compile(funcExpression);
+                        var (outputData, error) = Transpiler.Run(TimeSpan.FromSeconds(maxTime), compiledExpression, new List<object>(input));
+
+                        switch (error)
+                        {
+                            case 0:
+                                Console.WriteLine($"Ответ {(outputData.SequenceEqual(output) ? "верный" : "неверный")}. ");
+                                break;
+                            case 1:
+                                Console.WriteLine($"Время выполнения программы превысило заданное ограничение ({maxTime} сек).");
+                                break;
+                            case 2:
+                                Console.WriteLine("Не был обнаружен инициализирующий блок \"Когда флаг нажат\".");
+                                break;
+                        }
+                        outputData.ForEach(od => resOutput += $"{od};");
+                        resOutput = resOutput.Remove(resOutput.Length - 1);
+                        resOutput += "\n";
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Непредвиденная ошибка.");
+                    }
                 }
+                using (var w = new StreamWriter($"OUTPUT\\{fileName}.txt"))
+                {
+                    w.Write(resOutput);
+                }
+                Console.WriteLine($"Выходной файл: {Directory.GetCurrentDirectory()}\\OUTPUT\\{fileName}.txt\n");
             }
-            using (var w = new StreamWriter($"OUTPUT.csv"))
-            {
-                w.Write(resOutput);
-            }
-            Console.WriteLine($"Выходной файл: {Directory.GetCurrentDirectory()}\\OUTPUT.csv\n");
-            Console.WriteLine("Нажмите любую кнопку...");
+            Console.WriteLine("Тестировние завершено. Нажмите любую кнопку, чтобы выйти...");
             Console.ReadKey();
         }
     }
