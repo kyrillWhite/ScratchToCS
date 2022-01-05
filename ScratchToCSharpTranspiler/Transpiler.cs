@@ -368,9 +368,11 @@ namespace SToCSTranspiler
                 .Select(b => (b.Key, dScratch.Blocks[b.Value.Inputs["custom_block"].Value as string].Mutation));
             foreach (var fName in dFuncNames)
             {
+                var pFunc = Expression.Variable(typeof(Func<List<object>, bool>), fName.Mutation.Proccode);
                 var pArgs = Expression.Parameter(typeof(List<object>), "args");
-                var pFunc = Expression.Variable(typeof(Action<List<object>>), fName.Mutation.Proccode);
-                dFuncExpressions.Add(fName.Mutation.Proccode, new EFunc(pFunc, pArgs, fName.Mutation));
+                var returnVar = Expression.Variable(typeof(bool), "returnVar");
+                var curReturnTarget = Expression.Label("localReturnTarget");
+                dFuncExpressions.Add(fName.Mutation.Proccode, new EFunc(pFunc, pArgs, returnVar, curReturnTarget, fName.Mutation));
             }
 
             // Инициализация параметров функций
@@ -387,14 +389,21 @@ namespace SToCSTranspiler
             // Инициализация функций
             foreach (var func in dFuncExpressions)
             {
-                var expressions = Expression.Block(GetExpressionsFromBlock(dScratch.Blocks[dFuncNames.First(n => n.Mutation.Proccode == func.Key).Key],
+                var expressions = GetExpressionsFromBlock(dScratch.Blocks[dFuncNames.First(n => n.Mutation.Proccode == func.Key).Key],
                                                                            dScratch, dMainVariables, dFuncExpressions,
-                                                                           returnTarget));
+                                                                           func.Value.CurrentReturnTarget, func.Value);
+                expressions.Insert(0, Expression.Assign(func.Value.ReturnVariable, Expression.Constant(false, typeof(bool))));
+                expressions.Add(Expression.Label(func.Value.CurrentReturnTarget));
+                expressions.Add(func.Value.ReturnVariable);
+                var localVariables = new List<ParameterExpression>();
+                localVariables.Add(func.Value.ReturnVariable);
+
+                var bExpressions = Expression.Block(localVariables, expressions);
                 var eBlock = Expression.Block(
                     Expression.Assign(
                         func.Value.Function,
-                        Expression.Lambda<Action<List<object>>>(
-                            expressions, // Содержимое функции
+                        Expression.Lambda<Func<List<object>, bool>>(
+                            bExpressions, // Содержимое функции
                             func.Value.Parameter
                             )
                         )
@@ -424,17 +433,18 @@ namespace SToCSTranspiler
         /// <param name="gVariables">Словарь глобальных переменных в виде выражений.</param>
         /// <param name="gFunc">Словарь функций и их аргументов в виде выражений.</param>
         /// <param name="returnTarget">Метка прекращения выполнения программы.</param>
+        /// <param name="calledEFunc">Блок процедуры. Указывается, если запрашивается его поддерево.</param>
         /// <returns>Список выражений соответсвующий блокам.</returns>
         private static List<Expression> GetExpressionsFromBlock(SBlock block, DScratch dScratch,
                                                                 Dictionary<string, ParameterExpression> gVariables,
                                                                 Dictionary<string, EFunc> gFunc,
-                                                                LabelTarget returnTarget)
+                                                                LabelTarget returnTarget, EFunc calledEFunc = null)
         {
             var expressions = new List<Expression>();
             var currentBlock = block;
             while (true)
             {
-                var bExpression = GetExpressionFromBlock(currentBlock, dScratch, gVariables, gFunc, returnTarget);
+                var bExpression = GetExpressionFromBlock(currentBlock, dScratch, gVariables, gFunc, returnTarget, calledEFunc);
                 if (bExpression != null)
                 {
                     expressions.Add(bExpression);
@@ -451,7 +461,6 @@ namespace SToCSTranspiler
             }
             return expressions;
         }
-
         /// <summary>
         /// Конвертирует блок в соответствующее выражение.
         /// </summary>
@@ -460,11 +469,12 @@ namespace SToCSTranspiler
         /// <param name="gVariables">Словарь глобальных переменных в виде выражений.</param>
         /// <param name="gFunc">Словарь функций и их аргументов в виде выражений.</param>
         /// <param name="returnTarget">Метка прекращения выполнения программы.</param>
+        /// <param name="calledEFunc">Блок процедуры. Указывается, если запрашивается его поддерево.</param>
         /// <returns>Выражение соответствующее блоку.</returns>
         private static Expression GetExpressionFromBlock(SBlock block, DScratch dScratch,
                                                          Dictionary<string, ParameterExpression> gVariables,
                                                          Dictionary<string, EFunc> gFunc,
-                                                         LabelTarget returnTarget)
+                                                         LabelTarget returnTarget, EFunc calledEFunc = null)
         {
             Expression expression = Expression.Constant("", typeof(object));
             switch (block.Opcode)
@@ -472,7 +482,7 @@ namespace SToCSTranspiler
                 case Opcode.ControlForever:
                     {
                         var lExpressions = block.Inputs.ContainsKey("SUBSTACK") && block.Inputs["SUBSTACK"].Value != null ?
-                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget) :
+                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget, calledEFunc) :
                             new List<Expression>();
 
                         // Проверка времени выполнения
@@ -487,7 +497,7 @@ namespace SToCSTranspiler
                     {
                         var count = GetInputExpression(block.Inputs["TIMES"], dScratch, gVariables, gFunc, returnTarget);
                         var lExpressions = block.Inputs.ContainsKey("SUBSTACK") && block.Inputs["SUBSTACK"].Value != null ?
-                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget) :
+                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget, calledEFunc) :
                             new List<Expression>();
                         var i = Expression.Variable(typeof(int), "i"); // Локальная переменная "i"
                         var endLoop = Expression.Label(); // Метка для выхода из цикла
@@ -520,7 +530,7 @@ namespace SToCSTranspiler
                             GetInputExpression(block.Inputs["CONDITION"], dScratch, gVariables, gFunc, returnTarget) :
                             Expression.Constant(false, typeof(object));
                         var lExpressions = block.Inputs.ContainsKey("SUBSTACK") && block.Inputs["SUBSTACK"].Value != null ?
-                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget) :
+                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget, calledEFunc) :
                             new List<Expression>();
                         var ifBody = Expression.Block(lExpressions);
                         expression = Expression.IfThen(Expression.Call(typeof(Operations), "ToBool", null, condition), ifBody);
@@ -532,10 +542,10 @@ namespace SToCSTranspiler
                             GetInputExpression(block.Inputs["CONDITION"], dScratch, gVariables, gFunc, returnTarget) :
                             Expression.Constant(false, typeof(object));
                         var lExpressionsT = block.Inputs.ContainsKey("SUBSTACK") && block.Inputs["SUBSTACK"].Value != null ?
-                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget) :
+                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget, calledEFunc) :
                             new List<Expression>();
                         var lExpressionsF = block.Inputs.ContainsKey("SUBSTACK2") && block.Inputs["SUBSTACK2"].Value != null ?
-                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK2"].Value], dScratch, gVariables, gFunc, returnTarget) :
+                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK2"].Value], dScratch, gVariables, gFunc, returnTarget, calledEFunc) :
                             new List<Expression>();
                         var ifBody = Expression.Block(lExpressionsT);
                         var elseBody = Expression.Block(lExpressionsF);
@@ -544,7 +554,16 @@ namespace SToCSTranspiler
                     }
                 case Opcode.ControlStop:
                     {
-                        expression = Expression.Return(returnTarget);
+                        if (calledEFunc is not null)
+                        {
+                            expression = Expression.Block(
+                                Expression.Assign(calledEFunc.ReturnVariable, Expression.Constant(true, typeof(bool))),
+                                Expression.Return(returnTarget));
+                        }
+                        else
+                        {
+                            expression = Expression.Return(returnTarget);
+                        }
                         break;
                     }
                 case Opcode.ControlRepeatuntil:
@@ -553,7 +572,7 @@ namespace SToCSTranspiler
                             GetInputExpression(block.Inputs["CONDITION"], dScratch, gVariables, gFunc, returnTarget) :
                             Expression.Constant(false, typeof(object));
                         var lExpressions = block.Inputs.ContainsKey("SUBSTACK") && block.Inputs["SUBSTACK"].Value != null ?
-                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget) :
+                            GetExpressionsFromBlock(dScratch.Blocks[block.Inputs["SUBSTACK"].Value], dScratch, gVariables, gFunc, returnTarget, calledEFunc) :
                             new List<Expression>(); 
                         var endLoop = Expression.Label(); // Метка для выхода из цикла
                         var loopBody = new List<Expression>(); // Содержимое цикла
@@ -824,13 +843,13 @@ namespace SToCSTranspiler
                     }
                 case Opcode.ProceduresCall:
                     {
+                        var eFunc = gFunc[block.Mutation.Proccode];
+
                         var llArgs = block.Inputs.Where(i => i.Value.Value != null).Select(i => (i.Key, i.Value)).ToList();
                         var dArgs = new Dictionary<string, Expression>();
                         llArgs.ForEach(arg => dArgs.Add(arg.Key, GetInputExpression(arg.Value, dScratch, gVariables, gFunc, returnTarget)));
                         var lArgs = new List<Expression>();
                         block.Mutation.ArgumentIds.ForEach(aid => lArgs.Add(dArgs[aid]));
-
-                        var eFunc = gFunc[block.Mutation.Proccode];
 
                         var lpArgs = new List<Expression>();
                         for (int i = 0; i < lArgs.Count; i++)
@@ -839,7 +858,9 @@ namespace SToCSTranspiler
                                 Expression.Property(eFunc.Parameter, "Item", Expression.Constant(i, typeof(int))),
                                 lArgs[i]));
                         }
-                        lpArgs.Add(Expression.Invoke(eFunc.Function, eFunc.Parameter));
+                        lpArgs.Add(Expression.IfThen(
+                            Expression.Invoke(eFunc.Function, eFunc.Parameter),
+                            Expression.Return(returnTarget)));
 
                         // Проверка времени выполнения
                         var isCancellationRequested = Expression.Property(gVariables["CANCEL_TOKEN"], "IsCancellationRequested");
