@@ -28,7 +28,7 @@ namespace SToCSTranspiler
             }
             while (true)
             {
-                Console.Write("Введите путь до файла INPUT.txt (Данные читаются построково)\nINPUT: ");
+                Console.Write("Введите путь до файла INPUT.txt (Данные читаются построчно)\nINPUT: ");
                 inputPath = Console.ReadLine();
                 inputPath = inputPath.Trim('\"');
                 if (!(File.Exists(inputPath)))
@@ -37,14 +37,6 @@ namespace SToCSTranspiler
                     continue;
                 }
                 break;
-            }
-            Console.Write("Введите путь до директории файла OUTPUT.txt\nOUTPUT: ");
-            outputPath = Console.ReadLine();
-            outputPath = outputPath.Trim('\"');
-            if (!(Directory.Exists(outputPath)))
-            {
-                Console.WriteLine("Директория не найдена. Файл будет сохранен в текущей.");
-                outputPath = "";
             }
 
             var input = new List<object>();
@@ -58,18 +50,26 @@ namespace SToCSTranspiler
             }
 
             Transpiler.ChangeSpecValues();
-            var json  = Transpiler.ScratchToJson("C:/Users/kirill/Desktop/Test scratch/Scratch Project.sb3");
+            var json  = Transpiler.ScratchToJson(scratchPath);
             var dScratch = Transpiler.JsonToDScratch(json);
             var funcExpression = Transpiler.DScratchToExpression(dScratch);
-            var compiledExpression = funcExpression.Compile();
-            var outputData = compiledExpression(input);
+            var compiledExpression = Transpiler.Compile(funcExpression);
+            var (outputData, isTimeOut) = Transpiler.Run(TimeSpan.FromSeconds(2), compiledExpression, input);
 
-            using (var w = new StreamWriter(outputPath + "OUTPUT.txt"))
+            if (isTimeOut)
+            {
+                Console.WriteLine("Время выполнения программы превысило заданное ограничение (2 сек).");
+                Console.ReadKey();
+                return;
+            }
+
+            using (var w = new StreamWriter("OUTPUT.txt"))
             {
                 outputData.ForEach(od => w.WriteLine(od));
             }
-
             Console.WriteLine("Готово");
+            Console.WriteLine($"Выходной файл: {Directory.GetCurrentDirectory()}\\OUTPUT.txt");
+            Console.ReadKey();
         }
     }
 }

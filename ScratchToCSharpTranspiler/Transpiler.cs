@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Globalization;
+using System.Threading;
 
 namespace SToCSTranspiler
 {
@@ -872,6 +873,36 @@ namespace SToCSTranspiler
         private static Expression GetFieldExpression(SField field, Dictionary<string, ParameterExpression> gVariables)
         {
             return gVariables[field.Id];
+        }
+
+        /// <summary>
+        /// Компилирует дерево выражений <see cref = "Expression"/>.
+        /// </summary>
+        /// <param name="expression">Дерево выражений.</param>
+        /// <returns>Скомпилированная из дерева выражений функция.</returns>
+        public static Func<List<object>, List<object>> Compile(Expression<Func<List<object>, List<object>>> expression)
+        {
+            return expression.Compile();
+        }
+
+        /// <summary>
+        /// Выполняет функцию с указанными параметрами. Ограничивает время выполнения.
+        /// </summary>
+        /// <param name="timeout">Максимальное время выполнения.</param>
+        /// <param name="function">Выполняемая функция.</param>
+        /// <param name="parameters">Параметры функции.</param>
+        /// <returns>Возвращенное функцией значение и флаг превышения функцией указанного времени.</returns>
+        public static (List<object>, bool) Run(TimeSpan timeout, Func<List<object>, List<object>> function, List<object> parameters)
+        {
+            var task = Task.Run(() => function(parameters));
+            var delay = Task.Delay(timeout); 
+            var timeoutTask = Task.WhenAny(task, delay);
+
+            if (timeoutTask.Result == task)
+            {
+                return (task.Result, false);
+            }
+            return (new List<object>(), true);
         }
     }
 }
