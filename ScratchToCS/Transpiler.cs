@@ -858,14 +858,23 @@ namespace ScratchToCS
                                 Expression.Property(eFunc.Parameter, "Item", Expression.Constant(i, typeof(int))),
                                 lArgs[i]));
                         }
-                        lpArgs.Add(Expression.IfThen(
-                            Expression.Invoke(eFunc.Function, eFunc.Parameter),
-                            Expression.Return(returnTarget)));
+
+                        // Проверка переполнения стека
+                        var so = Expression.GreaterThan(
+                            Expression.Property(
+                                Expression.New(typeof(System.Diagnostics.StackTrace)), "FrameCount"),
+                            Expression.Constant(200, typeof(int)));
+
 
                         // Проверка времени выполнения
                         var isCancellationRequested = Expression.Property(gVariables["CANCEL_TOKEN"], "IsCancellationRequested");
                         var cancelCondition = Expression.IfThen(isCancellationRequested, Expression.Return(returnTarget));
                         lpArgs.Add(cancelCondition);
+
+
+                        lpArgs.Add(Expression.IfThen(
+                            Expression.Or(so, Expression.Invoke(eFunc.Function, eFunc.Parameter)),
+                            Expression.Return(returnTarget)));
 
                         expression = Expression.Block(lpArgs);
                         break;
@@ -918,7 +927,7 @@ namespace ScratchToCS
         }
 
         /// <summary>
-        /// Находит выражение переменной или списка выбранных в выпадающем меню блока.
+        /// Находит выражение переменной или списка, выбранных в выпадающем меню блока.
         /// </summary>
         /// <param name="field">Поле выбора блока.</param>
         /// <param name="gVariables">Словарь глобальных переменных в виде выражений.</param>
