@@ -10,8 +10,8 @@ namespace ScratchToCS
     public static class Operations
     {
         public static dynamic GetInputRepresOfList(List<object> list)
-        {
-            return string.Join(" ", list);
+        {            
+            return list.All(v => ((string)v).Length == 1) ? string.Join("", list) : string.Join(" ", list);
         }
 
         public static dynamic NumToString(dynamic num)
@@ -310,7 +310,7 @@ namespace ScratchToCS
         {
             double dValue;
             double.TryParse(NumToString(value), NumberStyles.Float, null, out dValue);
-            var res = Math.Round(dValue);
+            var res = Math.Round(dValue, MidpointRounding.AwayFromZero);
             return (res == -0.0 || double.IsNaN(res)) ? 0 : res;
         }
 

@@ -102,7 +102,7 @@ namespace TestApp
                             e.Message : "Непредвиденная ошибка.");
                     }
                 }
-                using (var w = new StreamWriter($"OUTPUT\\{fileName}.txt"))
+                using (var w = new StreamWriter($"OUTPUT\\{fileName}.txt", false, System.Text.Encoding.UTF8))
                 {
                     w.Write(resOutput);
                 }
