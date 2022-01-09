@@ -395,10 +395,8 @@ namespace ScratchToCS
                 expressions.Insert(0, Expression.Assign(func.Value.ReturnVariable, Expression.Constant(false, typeof(bool))));
                 expressions.Add(Expression.Label(func.Value.CurrentReturnTarget));
                 expressions.Add(func.Value.ReturnVariable);
-                var localVariables = new List<ParameterExpression>();
-                localVariables.Add(func.Value.ReturnVariable);
 
-                var bExpressions = Expression.Block(localVariables, expressions);
+                var bExpressions = Expression.Block(new[] { func.Value.ReturnVariable }, expressions);
                 var eBlock = Expression.Block(
                     Expression.Assign(
                         func.Value.Function,
@@ -849,7 +847,10 @@ namespace ScratchToCS
                         var dArgs = new Dictionary<string, Expression>();
                         llArgs.ForEach(arg => dArgs.Add(arg.Key, GetInputExpression(arg.Value, dScratch, gVariables, gFunc, returnTarget)));
                         var lArgs = new List<Expression>();
-                        block.Mutation.ArgumentIds.ForEach(aid => lArgs.Add(dArgs[aid]));
+                        block.Mutation.ArgumentIds.ForEach(aid => 
+                        {
+                            lArgs.Add(dArgs.ContainsKey(aid) ? dArgs[aid] : Expression.Constant("false", typeof(object)));
+                        });
 
                         var lpArgs = new List<Expression>();
                         for (int i = 0; i < lArgs.Count; i++)
