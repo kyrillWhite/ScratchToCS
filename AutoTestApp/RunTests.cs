@@ -31,8 +31,7 @@ namespace AutoTestApp
             // Транспилирование
             var completed = 0;
             var transpiledSolutions = new Dictionary<Solution, Expression<Func<CancellationToken, List<object>, List<object>>>>();
-            foreach (var solution in solutions)
-            //Parallel.ForEach(solutions, (solution) =>
+            Parallel.ForEach(solutions, (solution) =>
             {
                 bwMain.ReportProgress((int)(0.3 * completed * 100 / solutions.Count), "Транспиляция");
                 try
@@ -46,13 +45,11 @@ namespace AutoTestApp
                     solution.TranslationError = e.Message;
                 }
                 Interlocked.Increment(ref completed);
-                //});
-            }
+            });
             // Компилирование
             completed = 0;
             var compiledSolutions = new Dictionary<Solution, Func<CancellationToken, List<object>, List<object>>>();
-            foreach (var solutionPair in transpiledSolutions)
-            //Parallel.ForEach(transpiledSolutions, (solutionPair) =>
+            Parallel.ForEach(transpiledSolutions, (solutionPair) =>
             {
                 bwMain.ReportProgress((int)(30 + 0.1 * completed * 100 / solutions.Count), "Компиляция");
                 try
@@ -65,12 +62,10 @@ namespace AutoTestApp
                     solutionPair.Key.TranslationError = e.Message;
                 }
                 Interlocked.Increment(ref completed);
-                //});
-            }
+            });
             //Тестирование
             completed = 0;
-            foreach (var solutionPair in compiledSolutions)
-            //Parallel.ForEach(compiledSolutions, (solutionPair) =>
+            Parallel.ForEach(compiledSolutions, (solutionPair) =>
             {
                 bwMain.ReportProgress((int)(40 + 0.6 * completed * 100 / solutions.Count), "Тестирование");
                 if (solutionPair.Key != null)
@@ -101,8 +96,8 @@ namespace AutoTestApp
                     }
                 }
                 Interlocked.Increment(ref completed);
-                //});
-            }
+            });
+
             using (var db = new TSystemContext())
             {
                 foreach (var solution in solutions)
