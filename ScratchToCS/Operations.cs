@@ -310,7 +310,7 @@ namespace ScratchToCS
         {
             double dValue;
             double.TryParse(NumToString(value), NumberStyles.Float, null, out dValue);
-            var res = Math.Round(dValue, MidpointRounding.AwayFromZero);
+            var res = Math.Round(dValue, dValue < 0 ? MidpointRounding.ToZero : MidpointRounding.AwayFromZero);
             return (res == -0.0 || double.IsNaN(res)) ? 0 : res;
         }
 
