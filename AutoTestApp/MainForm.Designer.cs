@@ -369,7 +369,7 @@ namespace AutoTestApp
             this.btnSaveTable.Name = "btnSaveTable";
             this.btnSaveTable.Size = new System.Drawing.Size(142, 25);
             this.btnSaveTable.TabIndex = 2;
-            this.btnSaveTable.Text = "Сохранить результаты";
+            this.btnSaveTable.Text = "Сохранить в .csv";
             this.btnSaveTable.UseVisualStyleBackColor = true;
             this.btnSaveTable.Click += new System.EventHandler(this.btnSaveTable_Click);
             // 
