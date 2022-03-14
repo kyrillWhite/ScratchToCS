@@ -34,7 +34,8 @@ namespace ScratchToCS
         /// <returns>Строка в формате Json.</returns>
         public static string ScratchToJson(string path)
         {
-            var unzipDirrectory = Directory.GetCurrentDirectory() + "/unzipped";
+            var unzipDirrectory = Directory.GetCurrentDirectory() + 
+                $"/unzipped{Path.GetFileName(Path.GetDirectoryName(path))}_{Path.GetFileName(path)}";
             if (Directory.Exists(unzipDirrectory))
             {
                 Directory.Delete(unzipDirrectory, true);
@@ -203,19 +204,14 @@ namespace ScratchToCS
                         {
                             var lConstValue = lInput[1].EnumerateArray().ToList();
                             var cValueType = lConstValue[0].GetInt32(); // 4 - число, 10 - строка
-                            var cValue = lConstValue[1].GetString();
                             if (cValueType == 4)
                             {
-                                //double dvalue = 0;
-                                //double.TryParse(cValue, NumberStyles.Float, null, out dvalue);
-                                //value = dvalue;
-                                //type = TypeOfInput.Number;
-                                value = cValue;
+                                value = GetUTValue(lConstValue[1]);
                                 type = TypeOfInput.Number;
                             }
                             else
                             {
-                                value = cValue;
+                                value = GetUTValue(lConstValue[1]);
                                 type = TypeOfInput.String;
                             }
                         }
@@ -256,8 +252,15 @@ namespace ScratchToCS
                 {
                     var lField = field.Value.EnumerateArray().ToList();
                     var name = lField[0].GetString();
-                    var id = lField[1].ValueKind == JsonValueKind.Null ? null : lField[1].GetString();
-                    llFields.Add(new SField(name, id));
+                    if (lField.Count == 1)
+                    {
+                        llFields.Add(new SField(name, null));
+                    }
+                    else
+                    {
+                        var id = lField[1].ValueKind == JsonValueKind.Null ? null : lField[1].GetString();
+                        llFields.Add(new SField(name, id));
+                    }
                 }
 
                 JsonElement jMutation;
