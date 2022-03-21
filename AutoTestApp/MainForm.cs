@@ -535,13 +535,14 @@ namespace AutoTestApp
                 if (dialogResult == DialogResult.Yes)
                 {
                     Save();
-                    File.Delete("tsystem.db");
                 }
                 else if (dialogResult == DialogResult.Cancel)
                 {
                     e.Cancel = true;
+                    return;
                 }
             }
+            ClearAll();
         }
     }
 }
