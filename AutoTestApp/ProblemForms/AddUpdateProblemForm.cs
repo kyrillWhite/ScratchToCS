@@ -51,7 +51,7 @@ namespace AutoTestApp
         {
             if (string.IsNullOrWhiteSpace(tbName.Text))
             {
-                MessageBox.Show("Не указано имя участника", "Некорректные данные",
+                MessageBox.Show("Не указано название задания", "Некорректные данные",
                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 tbName.Text = problem.Name;
                 tbName.Focus();
