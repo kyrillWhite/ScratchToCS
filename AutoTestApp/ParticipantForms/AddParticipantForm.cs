@@ -111,6 +111,13 @@ namespace AutoTestApp
                     tbNameW.Focus();
                     return;
                 }
+                if (addOneParticFiles == null)
+                {
+                    MessageBox.Show(rbSevFiles.Checked ? "Выберите файлы" : "Выберете директорию", "Некорректные данные",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    tbNameW.Focus();
+                    return;
+                }
                 SetUnpackPage();
                 bwUnpacker.RunWorkerAsync();
             }
