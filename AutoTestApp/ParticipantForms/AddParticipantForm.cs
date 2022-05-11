@@ -23,6 +23,7 @@ namespace AutoTestApp
     public partial class AddParticipantForm : Form
     {
         private int currentParticCounts = 0;
+        private int incorrectFiles = 0;
         private string[] addOneParticFiles;
         private string[] addSevParticFolders;
         bool isBtnCancelUnpack = true;
@@ -190,7 +191,7 @@ namespace AutoTestApp
             var unpacker = sender as BackgroundWorker;
             var foldersContent = rbAddWSolution.Checked ? // (Имя, Файлы)
                     new List<(string, string[])> { (tbNameW.Text, addOneParticFiles) } :
-                    addSevParticFolders.Select(f => (Path.GetFileName(f), Directory.GetFiles(f))).ToList();
+                    addSevParticFolders.Select(f => (Path.GetFileName(f), Directory.GetFiles(f, "*.sb3"))).ToList();
             var completed = 0;
             var allFilesCount = foldersContent.Sum(fc => fc.Item2.Length);
             List<Participant> participants = new();
@@ -211,6 +212,7 @@ namespace AutoTestApp
                 allProblems = prevProblems.Concat(newProblems).ToList();
                 prevProblemsCount = prevProblems.Count;
             }
+            incorrectFiles = 0;
 
             Parallel.ForEach(foldersContent, (partFolder, stateJ, j) =>
             {
@@ -222,10 +224,6 @@ namespace AutoTestApp
                     var thisProblem = allProblems.First(p => p.Num == i);
                     try
                     {
-                        if (!solFile.EndsWith(".sb3"))
-                        {
-                            throw new Exception();
-                        }
                         var solution = new Solution
                         {
                             FileName = Path.GetFileName(solFile),
@@ -240,6 +238,7 @@ namespace AutoTestApp
                     }
                     catch
                     {
+                        Interlocked.Increment(ref incorrectFiles);
                         unpacker.ReportProgress(completed * 100 / allFilesCount, (solFile, 0));
                     }
                     Interlocked.Increment(ref completed);
@@ -357,20 +356,23 @@ namespace AutoTestApp
                     var solCount = addOneParticFiles.Length;
                     var createdProbCount = solCount - prevProblemsCount;
                     lbUnpackRes.Text =
-                    $"Было обнаружено {solCount} решени{DeclensionByNum(solCount)}. " +
-                    (createdProbCount <= 0 ? "Создание новых заданий не потребовалось. " : 
-                        $"В результате чего дополнительно было создано {createdProbCount} задани{DeclensionByNum(createdProbCount)}.\n") +
-                    "Рекомендуется соотнести задания с решениями в меню изменения данных участника из-за различных форматов именования файлов.";
+                        $"Было обнаружено {solCount} решени{DeclensionByNum(solCount)}. " +
+                        (createdProbCount <= 0 ? "Создание новых заданий не потребовалось. " :
+                            $"В результате чего дополнительно было создано {createdProbCount} задани{DeclensionByNum(createdProbCount)}.\n") +
+                        "Рекомендуется соотнести задания с решениями в меню изменения данных участника из-за различных форматов именования файлов." +
+                        (incorrectFiles > 0 ? $"\nНекорректных файлов было обнаружено - {incorrectFiles}. Подробности в поле выше." : "");
                 }
                 else
                 {
                     var maxSolCount = addSevParticFolders.Max(f => Directory.GetFiles(f, "*.sb3").Length);
-                    var createdProbCount = maxSolCount - prevProblemsCount; lbUnpackRes.Text =
-                     $"Добавленное количестсво участников - {addSevParticFolders.Length}.\n" +
-                     $"Максимальное количество решений - {maxSolCount}. " +
-                     (createdProbCount <= 0 ? "Создание новых заданий не потребовалось. " :
-                         $"В результате чего дополнительно было создано {createdProbCount} задани{DeclensionByNum(createdProbCount)}.\n") +
-                     "Рекомендуется соотнести задания с решениями в меню изменения данных участников из-за различных форматов именования файлов.";
+                    var createdProbCount = maxSolCount - prevProblemsCount; 
+                    lbUnpackRes.Text =
+                        $"Добавленное количество участников - {addSevParticFolders.Length}.\n" +
+                        $"Максимальное количество решений - {maxSolCount}. " +
+                        (createdProbCount <= 0 ? "Создание новых заданий не потребовалось. " :
+                            $"В результате чего дополнительно было создано {createdProbCount} задани{DeclensionByNum(createdProbCount)}.\n") +
+                        "Рекомендуется соотнести задания с решениями в меню изменения данных участников из-за различных форматов именования файлов." +
+                        (incorrectFiles > 0 ? $"\nНекорректных файлов было обнаружено - {incorrectFiles}. Подробности в поле выше." : "");
                 }
             }
         }
