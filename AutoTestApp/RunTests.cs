@@ -17,7 +17,7 @@ namespace AutoTestApp
         static double _maxTime = 0.5;
         private static List<object> StringToList(string text)
         {
-            return new List<object>(text?.Split("\r\n", StringSplitOptions.RemoveEmptyEntries));
+            return new List<object>((text ?? "").Split("\r\n", StringSplitOptions.RemoveEmptyEntries));
         }
 
         public static void Run(List<Solution> solutions, BackgroundWorker bwMain)
