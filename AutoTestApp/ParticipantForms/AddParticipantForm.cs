@@ -190,7 +190,7 @@ namespace AutoTestApp
             var unpacker = sender as BackgroundWorker;
             var foldersContent = rbAddWSolution.Checked ? // (Имя, Файлы)
                     new List<(string, string[])> { (tbNameW.Text, addOneParticFiles) } :
-                    addSevParticFolders.Select(f => (Path.GetFileName(f), Directory.GetFiles(f, "*.sb3"))).ToList();
+                    addSevParticFolders.Select(f => (Path.GetFileName(f), Directory.GetFiles(f))).ToList();
             var completed = 0;
             var allFilesCount = foldersContent.Sum(fc => fc.Item2.Length);
             List<Participant> participants = new();
@@ -219,19 +219,30 @@ namespace AutoTestApp
                 var jLoopBreak = false;
                 Parallel.ForEach(solFiles, (solFile, stateI, i) =>
                 {
-                    unpacker.ReportProgress(completed * 100 / allFilesCount, solFile);
                     var thisProblem = allProblems.First(p => p.Num == i);
-                    var solution = new Solution
+                    try
                     {
-                        FileName = Path.GetFileName(solFile),
-                        Problem = thisProblem,
-                        Participant = participant,
-                        SolutionFile = ScratchToCS.Transpiler.ScratchToJson(solFile),
-                        TestPassed = -1,
-                    };
+                        if (!solFile.EndsWith(".sb3"))
+                        {
+                            throw new Exception();
+                        }
+                        var solution = new Solution
+                        {
+                            FileName = Path.GetFileName(solFile),
+                            Problem = thisProblem,
+                            Participant = participant,
+                            SolutionFile = ScratchToCS.Transpiler.ScratchToJson(solFile),
+                            TestPassed = -1,
+                        };
+                        participant.Solutions.Add(solution);
+                        thisProblem.Solutions.Add(solution);
+                        unpacker.ReportProgress(completed * 100 / allFilesCount, (solFile, 1));
+                    }
+                    catch
+                    {
+                        unpacker.ReportProgress(completed * 100 / allFilesCount, (solFile, 0));
+                    }
                     Interlocked.Increment(ref completed);
-                    participant.Solutions.Add(solution);
-                    thisProblem.Solutions.Add(solution);
                     if (unpacker.CancellationPending)
                     {
                         jLoopBreak = true;
@@ -246,7 +257,7 @@ namespace AutoTestApp
             });
             if (unpacker.CancellationPending)
             {
-                unpacker.ReportProgress(completed * 100 / allFilesCount, "Распаковка прервана");
+                unpacker.ReportProgress(completed * 100 / allFilesCount, ("Распаковка прервана", 2));
                 e.Cancel = true;
             }
             else
@@ -258,7 +269,7 @@ namespace AutoTestApp
                     db.Participants.AddRange(participants);
                     db.SaveChanges();
                 }
-                unpacker.ReportProgress(100, "Готово");
+                unpacker.ReportProgress(100, ("Готово", 2));
                 dataAdded = true;
             }
         }
@@ -267,10 +278,25 @@ namespace AutoTestApp
         {
             prbUnpack.Value = e.ProgressPercentage;
             lbProgressProcents.Text = $"{e.ProgressPercentage}%";
-            var filePath = (string)e.UserState;
-            tbUnpackedFiles.AppendText(Path.Combine(
-                Path.GetFileName(Path.GetDirectoryName(filePath)),
-                Path.GetFileName(filePath)) + Environment.NewLine);
+            var (text, state) = ((string, int))e.UserState;
+            var lineinfo = "";
+            switch(state)
+            {
+                case 0:
+                    lineinfo = Path.Combine(
+                        Path.GetFileName(Path.GetDirectoryName(text)),
+                        Path.GetFileName(text)) + " [Ошибка распаковки]";
+                    break;
+                case 1:
+                    lineinfo = Path.Combine(
+                        Path.GetFileName(Path.GetDirectoryName(text)),
+                        Path.GetFileName(text));
+                    break;
+                case 2:
+                    lineinfo = text;
+                    break;
+            }
+            tbUnpackedFiles.AppendText(lineinfo + Environment.NewLine);
         }
 
         private void btnCancelUnpack_Click(object sender, EventArgs e)
