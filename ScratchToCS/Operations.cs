@@ -245,7 +245,7 @@ namespace ScratchToCS
             if (!double.TryParse(NumToString(f), NumberStyles.Float, null, out df) ||
                 !double.TryParse(NumToString(s), NumberStyles.Float, null, out ds))
             {
-                return ToString(f).CompareTo(ToString(s)) == 0;
+                return ToString(f).ToLower().CompareTo(ToString(s).ToLower()) == 0;
             }
             return df == ds;
         }
