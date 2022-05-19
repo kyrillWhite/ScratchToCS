@@ -24,12 +24,15 @@ namespace AutoTestApp
             Text = (isAdd ? "Добавление" : "Изменение") + " задания";
             tbName.Text = isAdd ? $"Задание {_problem.Num + 1}" : _problem.Name;
             nudCost.Value = isAdd ? 1 : (decimal)_problem.Cost;
+            cbByTest.Checked = isAdd ? false : _problem.ByTest;
             btnOK.Select();
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (tbName.Text != problem.Name || nudCost.Value != (decimal)problem.Cost)
+            if (tbName.Text != problem.Name ||
+                nudCost.Value != (decimal)problem.Cost ||
+                cbByTest.Checked != problem.ByTest)
             {
                 dataChanged = true;
             }
@@ -59,13 +62,16 @@ namespace AutoTestApp
             }
             problem.Name = tbName.Text;
             problem.Cost = (float)Decimal.Round(nudCost.Value, 2);
+            problem.ByTest = cbByTest.Checked;
             return true;
         }
 
         private void AddUpdateProblemForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (isAdd) { return; }
-            if (tbName.Text != problem.Name || nudCost.Value != (decimal)problem.Cost)
+            if (tbName.Text != problem.Name || 
+                nudCost.Value != (decimal)problem.Cost ||
+                cbByTest.Checked != problem.ByTest)
             {
                 dataChanged = true;
             }

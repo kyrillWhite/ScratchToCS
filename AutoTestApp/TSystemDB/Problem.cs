@@ -15,6 +15,7 @@ namespace AutoTestApp
         public int Num { get; set; }
         public string Name { get; set; }
         public float Cost { get; set; }
+        public bool ByTest { get; set; }
         public List<Test> Tests { get; set; } = new();
         public List<Solution> Solutions { get; set; } = new();
     }

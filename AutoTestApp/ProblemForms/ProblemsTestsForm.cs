@@ -52,7 +52,10 @@ namespace AutoTestApp
             var oProblems = db.Problems.Include(p => p.Tests).OrderBy(p => p.Num).ToList();
             foreach (var problem in oProblems)
             {
-                var rowIdx = dgvProblems.Rows.Add(problem.Name, problem.Cost, problem.Tests.Count);
+                var rowIdx = dgvProblems.Rows.Add(
+                    problem.Name,
+                    problem.ByTest ? $"по {problem.Cost / problem.Tests.Count} за тест" : problem.Cost,
+                    problem.Tests.Count);
                 dgvProblems.Rows[rowIdx].Tag = problem;
             }
         }
@@ -97,6 +100,7 @@ namespace AutoTestApp
                     db.Entry(problem).Property("Num").IsModified = true;
                     db.Entry(problem).Property("Name").IsModified = true;
                     db.Entry(problem).Property("Cost").IsModified = true;
+                    db.Entry(problem).Property("ByTest").IsModified = true;
                     foreach (var test in problem.Tests)
                     {
                         if (db.Tests.Contains(test))
@@ -214,6 +218,10 @@ namespace AutoTestApp
             var rowIdx = dgvTests.Rows.Add($"Тест {dgvTests.Rows.Count + 1}");
             dgvTests.Rows[rowIdx].Tag = test;
             dgvTests.Rows[rowIdx].Selected = true;
+            if (problem.ByTest)
+            {
+                dgvProblems.SelectedRows[0].Cells[1].Value = $"по {problem.Cost / problem.Tests.Count} за тест";
+            }
             dgvProblems.SelectedRows[0].Cells[2].Value = problem.Tests.Count;
             DataChanged();
         }
@@ -282,6 +290,10 @@ namespace AutoTestApp
                 var rowIdx = dgvTests.Rows.Add($"Тест {dgvTests.Rows.Count + 1}");
                 dgvTests.Rows[rowIdx].Tag = test;
                 dgvTests.Rows[rowIdx].Selected = true;
+                if (problem.ByTest)
+                {
+                    dgvProblems.SelectedRows[0].Cells[1].Value = $"по {problem.Cost / problem.Tests.Count} за тест";
+                }
                 dgvProblems.SelectedRows[0].Cells[2].Value = problem.Tests.Count;
             }
             if (badFiles.Count != 0)
@@ -310,16 +322,22 @@ namespace AutoTestApp
                 dgvTests.Rows[testRowIdx - 1].Selected = true;
             }
             DataChanged();
+            dgvProblems.SelectedRows[0].Cells[1].Value =
+                problem.ByTest ? (problem.Tests.Count == 0 ? "по ? за тест" :
+                    $"по {problem.Cost / problem.Tests.Count} за тест") : problem.Cost;
             dgvProblems.SelectedRows[0].Cells[2].Value = problem.Tests.Count;
         }
 
         private void btnAddProblem_Click(object sender, EventArgs e)
         {
-            var problem = new Problem { Cost = 0, Name = "", Num = dgvProblems.Rows.Count };
+            var problem = new Problem { Cost = 0, Name = "", Num = dgvProblems.Rows.Count, ByTest = false };
             var addUpdateProblemForm = new AddUpdateProblemForm(problem, true);
             if (addUpdateProblemForm.ShowDialog() == DialogResult.OK)
             {
-                var rowIdx = dgvProblems.Rows.Add(problem.Name, problem.Cost, 0);
+                var rowIdx = dgvProblems.Rows.Add(
+                    problem.Name,
+                    problem.ByTest ? "по ? за тест" : problem.Cost,
+                    0);
                 dgvProblems.Rows[rowIdx].Tag = problem;
                 DataChanged();
                 UpdateUpdDelBtnEnable();
@@ -333,7 +351,9 @@ namespace AutoTestApp
             if (addUpdateProblemForm.ShowDialog() == DialogResult.OK)
             {
                 dgvProblems.SelectedRows[0].Cells[0].Value = problem.Name;
-                dgvProblems.SelectedRows[0].Cells[1].Value = problem.Cost;
+                dgvProblems.SelectedRows[0].Cells[1].Value = 
+                    problem.ByTest ? (problem.Tests.Count == 0 ? "по ? за тест" : 
+                        $"по {problem.Cost / problem.Tests.Count} за тест") : problem.Cost;
                 DataChanged();
             }
         }

@@ -29,37 +29,40 @@ namespace AutoTestApp
         /// </summary>
         private void InitializeComponent()
         {
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.gbCost = new System.Windows.Forms.GroupBox();
             this.nudCost = new System.Windows.Forms.NumericUpDown();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpLow = new System.Windows.Forms.TableLayoutPanel();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
             this.gbName = new System.Windows.Forms.GroupBox();
             this.tbName = new System.Windows.Forms.TextBox();
-            this.tableLayoutPanel1.SuspendLayout();
+            this.cbByTest = new System.Windows.Forms.CheckBox();
+            this.tlpMain.SuspendLayout();
             this.gbCost.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudCost)).BeginInit();
-            this.tableLayoutPanel2.SuspendLayout();
+            this.tlpLow.SuspendLayout();
             this.gbName.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tableLayoutPanel1
+            // tlpMain
             // 
-            this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.gbCost, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.gbName, 0, 0);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(201, 143);
-            this.tableLayoutPanel1.TabIndex = 0;
+            this.tlpMain.ColumnCount = 1;
+            this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpMain.Controls.Add(this.gbCost, 0, 1);
+            this.tlpMain.Controls.Add(this.gbName, 0, 0);
+            this.tlpMain.Controls.Add(this.tlpLow, 0, 3);
+            this.tlpMain.Controls.Add(this.cbByTest, 0, 2);
+            this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpMain.Location = new System.Drawing.Point(0, 0);
+            this.tlpMain.Name = "tlpMain";
+            this.tlpMain.RowCount = 4;
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tlpMain.Size = new System.Drawing.Size(201, 166);
+            this.tlpMain.TabIndex = 0;
             // 
             // gbCost
             // 
@@ -86,26 +89,26 @@ namespace AutoTestApp
             0,
             0});
             // 
-            // tableLayoutPanel2
+            // tlpLow
             // 
-            this.tableLayoutPanel2.ColumnCount = 2;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Controls.Add(this.btnCancel, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btnOK, 0, 0);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 104);
-            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 1;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(201, 39);
-            this.tableLayoutPanel2.TabIndex = 2;
+            this.tlpLow.ColumnCount = 2;
+            this.tlpLow.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpLow.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpLow.Controls.Add(this.btnCancel, 0, 0);
+            this.tlpLow.Controls.Add(this.btnOK, 0, 0);
+            this.tlpLow.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpLow.Location = new System.Drawing.Point(0, 134);
+            this.tlpLow.Margin = new System.Windows.Forms.Padding(0);
+            this.tlpLow.Name = "tlpLow";
+            this.tlpLow.RowCount = 1;
+            this.tlpLow.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpLow.Size = new System.Drawing.Size(201, 32);
+            this.tlpLow.TabIndex = 2;
             // 
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(123, 12);
+            this.btnCancel.Location = new System.Drawing.Point(123, 5);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 24);
             this.btnCancel.TabIndex = 2;
@@ -116,7 +119,7 @@ namespace AutoTestApp
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnOK.Location = new System.Drawing.Point(3, 12);
+            this.btnOK.Location = new System.Drawing.Point(3, 5);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(84, 24);
             this.btnOK.TabIndex = 1;
@@ -143,19 +146,31 @@ namespace AutoTestApp
             this.tbName.Size = new System.Drawing.Size(189, 23);
             this.tbName.TabIndex = 0;
             // 
+            // cbByTest
+            // 
+            this.cbByTest.AutoSize = true;
+            this.cbByTest.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cbByTest.Location = new System.Drawing.Point(3, 107);
+            this.cbByTest.Name = "cbByTest";
+            this.cbByTest.Size = new System.Drawing.Size(195, 24);
+            this.cbByTest.TabIndex = 4;
+            this.cbByTest.Text = "Потестовая проверка";
+            this.cbByTest.UseVisualStyleBackColor = true;
+            // 
             // AddUpdateProblemForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(201, 143);
-            this.Controls.Add(this.tableLayoutPanel1);
+            this.ClientSize = new System.Drawing.Size(201, 166);
+            this.Controls.Add(this.tlpMain);
             this.Name = "AddUpdateProblemForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AddUpdateProblemForm_FormClosing);
-            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tlpMain.ResumeLayout(false);
+            this.tlpMain.PerformLayout();
             this.gbCost.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.nudCost)).EndInit();
-            this.tableLayoutPanel2.ResumeLayout(false);
+            this.tlpLow.ResumeLayout(false);
             this.gbName.ResumeLayout(false);
             this.gbName.PerformLayout();
             this.ResumeLayout(false);
@@ -164,13 +179,14 @@ namespace AutoTestApp
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TableLayoutPanel tlpMain;
         private System.Windows.Forms.GroupBox gbCost;
         private System.Windows.Forms.NumericUpDown nudCost;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.TableLayoutPanel tlpLow;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.GroupBox gbName;
         private System.Windows.Forms.TextBox tbName;
+        private System.Windows.Forms.CheckBox cbByTest;
     }
 }

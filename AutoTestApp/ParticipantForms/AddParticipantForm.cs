@@ -207,7 +207,7 @@ namespace AutoTestApp
                 prevProblems = db.Problems.ToList();
                 for (var i = db.Problems.Count(); i < maxSolCount; i++)
                 {
-                    newProblems.Add(new Problem { Cost = 1, Name = $"Задание {i + 1}", Num = i });
+                    newProblems.Add(new Problem { Cost = 1, Name = $"Задание {i + 1}", Num = i, ByTest = false });
                 }
                 allProblems = prevProblems.Concat(newProblems).ToList();
                 prevProblemsCount = prevProblems.Count;
