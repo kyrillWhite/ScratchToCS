@@ -77,8 +77,11 @@ namespace AutoTestApp
                 .ToList();
             dgvTestResults.Rows[rowIdx].Cells["dgvcParticName"].Value = participant.Name;
 
+
             var resultScore = solutions.Sum(s =>
-                s.TestPassed == s.Problem.Tests.Count ? s.Problem.Cost : 0);
+                s.Problem.Tests.Count > 0 ?
+                    (s.Problem.ByTest ? s.Problem.Cost / s.Problem.Tests.Count * s.TestPassed :
+                        (s.TestPassed == s.Problem.Tests.Count ? s.Problem.Cost : 0)) : 0);
             dgvTestResults.Rows[rowIdx].Cells["dgvcResult"].Value = resultScore;
             var row = dgvTestResults.Rows[rowIdx];
 
@@ -109,7 +112,20 @@ namespace AutoTestApp
                 }
                 else if (solution.TestPassed < solution.Problem.Tests.Count)
                 {
-                    cell.Style.BackColor = Color.IndianRed;
+                    if (solution.Problem.ByTest)
+                    {
+                        var bestColor = Color.GreenYellow;
+                        var worstColor = Color.IndianRed;
+                        var percent = (float)solution.TestPassed / solution.Problem.Tests.Count;
+                        cell.Style.BackColor = Color.FromArgb(
+                            (byte)(bestColor.R * percent + worstColor.R * (1 - percent)),
+                            (byte)(bestColor.G * percent + worstColor.G * (1 - percent)),
+                            (byte)(bestColor.B * percent + worstColor.B * (1 - percent)));
+                    }
+                    else
+                    {
+                        cell.Style.BackColor = Color.IndianRed;
+                    }
                     cell.Style.ForeColor = Color.Black;
                     cell.Value = $"{solution.TestPassed}/{solution.Problem.Tests.Count}";
                 }
@@ -280,7 +296,7 @@ namespace AutoTestApp
 
         private void tsmiProblemAdd_Click(object sender, EventArgs e)
         {
-            var problem = new Problem { Cost = 0, Name = "", Num = dgvTestResults.Columns.Count - 2 };
+            var problem = new Problem { Cost = 0, Name = "", Num = dgvTestResults.Columns.Count - 2, ByTest = false };
             var addUpdateProblemForm = new AddUpdateProblemForm(problem, true);
             if (addUpdateProblemForm.ShowDialog() == DialogResult.OK)
             {

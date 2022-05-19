@@ -314,7 +314,7 @@ namespace AutoTestApp
 
         private void btnAddProblem_Click(object sender, EventArgs e)
         {
-            var problem = new Problem { Cost = 0, Name = "", Num = dgvSolutions.Rows.Count };
+            var problem = new Problem { Cost = 0, Name = "", Num = dgvSolutions.Rows.Count, ByTest = false };
             var addUpdateProblemForm = new AddUpdateProblemForm(problem, true);
             if (addUpdateProblemForm.ShowDialog() == DialogResult.OK)
             {
