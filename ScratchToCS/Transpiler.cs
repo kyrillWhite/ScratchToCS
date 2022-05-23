@@ -60,8 +60,13 @@ namespace ScratchToCS
             {
                 throw new TestException("Исходный спрайт был удален.");
             }
-            var stageTarget = targets[0]; 
-            var spriteTarget = targets[1];
+            var stageTarget = targets.FirstOrDefault(t => t.GetProperty("isStage").GetBoolean());
+            var spriteTargets = targets.Where(t => !t.GetProperty("isStage").GetBoolean());
+            if (spriteTargets.Count() > 1)
+            {
+                WarningsLogger.PushWarning(WarningType.SeveralSprites, spriteTargets.Count());
+            }
+            var spriteTarget = spriteTargets.First();
 
             // Глобальные переменные и списки хранятся в сцене,
             // но есть возможность создавать их с привязкой к спрайту.
@@ -75,6 +80,14 @@ namespace ScratchToCS
 
             // Учитываются только блоки спрайта
             var dBlocks = GetBlocks(spriteTarget);
+            var procedureBlocks = dBlocks.Where(b => b.Value.Opcode == Opcode.ProceduresPrototype);
+            var dupclicate = procedureBlocks.GroupBy(b => b.Value.Mutation.Proccode).
+                FirstOrDefault(g => g.Count() > 1);
+            if (dupclicate != null)
+            {
+                WarningsLogger.PushWarning(WarningType.ProceduresWithSameName, 
+                    dupclicate.First().Value.Mutation.Proccode, dupclicate.Count());
+            }
 
             return new DScratch(dVariables, dLists, dBlocks);
         }
@@ -187,6 +200,7 @@ namespace ScratchToCS
                 if (!OpcodeParse.FromString.ContainsKey(opcode))
                 {
                     dBlocks.Add(lBlock.Name, new SBlock(Opcode.Null, nextId, parentId, dlInputs, llFields, null));
+                    WarningsLogger.PushWarning(WarningType.UnknownBlock, opcode);
                     continue;
                 }
                 foreach (var input in lInputs)
@@ -300,8 +314,8 @@ namespace ScratchToCS
                         mutation = new SMutation(proccode, lArguments, lArgumentNames);
                     }
                 }
-
-                dBlocks.Add(lBlock.Name, new SBlock(OpcodeParse.FromString[opcode], nextId, parentId, dlInputs, llFields, mutation));
+                dBlocks.Add(lBlock.Name,
+                       new SBlock(OpcodeParse.FromString[opcode], nextId, parentId, dlInputs, llFields, mutation));
             }
             return dBlocks;
         }
@@ -313,11 +327,17 @@ namespace ScratchToCS
         /// <returns>Лямда функция дерева выражений.</returns>
         public static Expression<Func<CancellationToken, List<object>, List<object>>> DScratchToExpression(DScratch dScratch)
         {
-            var startProgBlock = dScratch.Blocks.FirstOrDefault(b => b.Value.Opcode == Opcode.EventWhenflagclicked).Value;
-            if (startProgBlock == null)
+            var startProgBlocks = dScratch.Blocks.Where(b => b.Value.Opcode == Opcode.EventWhenflagclicked);
+            if (startProgBlocks.Count() == 0)
             {
                 throw new TestException("Не был обнаружен инициализирующий блок \"Когда флаг нажат\".");
             }
+            else if (startProgBlocks.Count() > 1)
+            {
+                WarningsLogger.PushWarning(WarningType.SeveralBlocksWhenFlagPressed, startProgBlocks.Count());
+            }
+
+            var startProgBlock = startProgBlocks.First().Value;
 
             var dMainVariables = new Dictionary<string, ParameterExpression>();
             var lMainExpressions = new List<Expression>();
@@ -371,11 +391,14 @@ namespace ScratchToCS
                 .Select(b => (b.Key, dScratch.Blocks[b.Value.Inputs["custom_block"].Value as string].Mutation));
             foreach (var fName in dFuncNames)
             {
-                var pFunc = Expression.Variable(typeof(Func<List<object>, bool>), fName.Mutation.Proccode);
-                var pArgs = Expression.Parameter(typeof(List<object>), "args");
-                var returnVar = Expression.Variable(typeof(bool), "returnVar");
-                var curReturnTarget = Expression.Label("localReturnTarget");
-                dFuncExpressions.Add(fName.Mutation.Proccode, new EFunc(pFunc, pArgs, returnVar, curReturnTarget, fName.Mutation));
+                if (!dFuncExpressions.ContainsKey(fName.Mutation.Proccode))
+                {
+                    var pFunc = Expression.Variable(typeof(Func<List<object>, bool>), fName.Mutation.Proccode);
+                    var pArgs = Expression.Parameter(typeof(List<object>), "args");
+                    var returnVar = Expression.Variable(typeof(bool), "returnVar");
+                    var curReturnTarget = Expression.Label("localReturnTarget");
+                    dFuncExpressions.Add(fName.Mutation.Proccode, new EFunc(pFunc, pArgs, returnVar, curReturnTarget, fName.Mutation));
+                }
             }
 
             // Инициализация параметров функций
@@ -898,7 +921,7 @@ namespace ScratchToCS
                         break;
                     }
             }
-            
+
             return expression;
         }
 

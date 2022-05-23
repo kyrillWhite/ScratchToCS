@@ -25,7 +25,7 @@ namespace AutoTestApp
             using (var db = new TSystemContext())
             {
                 db.TestResults.RemoveRange(solutions.SelectMany(s => s.TestResults));
-                solutions.ForEach(s => { s.TestResults.Clear(); s.TranslationError = ""; s.TestPassed = 0; });
+                solutions.ForEach(s => { s.TestResults.Clear(); s.TranslationError = ""; s.Warnings = ""; s.TestPassed = 0; });
                 db.SaveChanges();
             }
             // Транспилирование
@@ -42,8 +42,9 @@ namespace AutoTestApp
                 }
                 catch (Exception e)
                 {
-                    solution.TranslationError = e.Message;
+                    solution.TranslationError = $"🚫{e.Message}";
                 }
+                solution.Warnings = String.Join("\r\n", WarningsLogger.PopAllWarnings());
                 Interlocked.Increment(ref completed);
             });
             // Компилирование
@@ -59,7 +60,7 @@ namespace AutoTestApp
                 }
                 catch (Exception e)
                 {
-                    solutionPair.Key.TranslationError = e.Message;
+                    solutionPair.Key.TranslationError = $"🚫{e.Message}";
                 }
                 Interlocked.Increment(ref completed);
             });
@@ -103,6 +104,7 @@ namespace AutoTestApp
                 foreach (var solution in solutions)
                 {
                     db.Solutions.Attach(solution);
+                    db.Entry(solution).Property("Warnings").IsModified = true;
                     db.Entry(solution).Property("TranslationError").IsModified = true;
                     db.Entry(solution).Property("TestPassed").IsModified = true;
                     db.TestResults.AddRange(solution.TestResults);

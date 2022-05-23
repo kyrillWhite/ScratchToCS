@@ -15,6 +15,7 @@ namespace AutoTestApp
         public int ProblemId { get; set; }
         public Problem Problem { get; set; }
         public string TranslationError { get; set; }
+        public string Warnings { get; set; }
         public string FileName { get; set; }
         public string SolutionFile { get; set; }
         public int TestPassed { get; set; }

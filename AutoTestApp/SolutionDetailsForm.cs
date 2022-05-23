@@ -18,7 +18,8 @@ namespace AutoTestApp
             InitializeComponent();
             solution = _solution;
             Text = solution.FileName;
-            lbComplileError.Text = solution.TranslationError;
+            tbErrors.Text = (string.IsNullOrEmpty(solution.TranslationError) ? "" : 
+                $"{solution.TranslationError}") + solution.Warnings;
             UpdateDgvTests();
             UpdateButtons();
         }
@@ -122,6 +123,8 @@ namespace AutoTestApp
         {
             prbTest.Visible = false;
             UpdateDgvTests();
+            tbErrors.Text = (string.IsNullOrEmpty(solution.TranslationError) ? "" :
+                $"{solution.TranslationError}\r\n") + solution.Warnings;
         }
     }
 }
