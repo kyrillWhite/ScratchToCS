@@ -333,6 +333,18 @@ namespace AutoTestApp
             }
         }
 
+        private void tsmiRatio_Click(object sender, EventArgs e)
+        {
+            var ratioForm = new RatioForm();
+            var dialogResult = ratioForm.ShowDialog();
+            if (dialogResult != DialogResult.Cancel)
+            {
+                UpdateDgvTestResults();
+                UpdateBtnEnable();
+                DataChange();
+            }
+        }
+
         private void tsmiExit_Click(object sender, EventArgs e)
         {
             Close();
