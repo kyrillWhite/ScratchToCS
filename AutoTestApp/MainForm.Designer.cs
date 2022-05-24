@@ -43,6 +43,8 @@ namespace AutoTestApp
             this.tsmiProblemDetails = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiProblemAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSolutions = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiRatio = new System.Windows.Forms.ToolStripMenuItem();
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.dgvTestResults = new System.Windows.Forms.DataGridView();
             this.tlpRightMenu = new System.Windows.Forms.TableLayoutPanel();
@@ -78,7 +80,8 @@ namespace AutoTestApp
             this.msMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.файлToolStripMenuItem,
             this.tsmiParticipants,
-            this.tsmiProblemsTests});
+            this.tsmiProblemsTests,
+            this.tsmiSolutions});
             this.msMain.Location = new System.Drawing.Point(0, 0);
             this.msMain.Name = "msMain";
             this.msMain.Size = new System.Drawing.Size(940, 24);
@@ -186,6 +189,21 @@ namespace AutoTestApp
             this.tsmiProblemAdd.Size = new System.Drawing.Size(172, 22);
             this.tsmiProblemAdd.Text = "Добавить задание";
             this.tsmiProblemAdd.Click += new System.EventHandler(this.tsmiProblemAdd_Click);
+            // 
+            // tsmiSolutions
+            // 
+            this.tsmiSolutions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiRatio});
+            this.tsmiSolutions.Name = "tsmiSolutions";
+            this.tsmiSolutions.Size = new System.Drawing.Size(69, 20);
+            this.tsmiSolutions.Text = "Решения";
+            // 
+            // tsmiRatio
+            // 
+            this.tsmiRatio.Name = "tsmiRatio";
+            this.tsmiRatio.Size = new System.Drawing.Size(223, 22);
+            this.tsmiRatio.Text = "Соотношение с заданиями";
+            this.tsmiRatio.Click += new System.EventHandler(this.tsmiRatio_Click);
             // 
             // tlpMain
             // 
@@ -483,6 +501,8 @@ namespace AutoTestApp
         private System.Windows.Forms.SaveFileDialog sfdMain;
         private System.Windows.Forms.OpenFileDialog ofdSession;
         private System.Windows.Forms.SaveFileDialog sfdTable;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSolutions;
+        private System.Windows.Forms.ToolStripMenuItem tsmiRatio;
     }
 }
 

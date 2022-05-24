@@ -213,6 +213,7 @@ namespace AutoTestApp
                 prevProblemsCount = prevProblems.Count;
             }
             incorrectFiles = 0;
+            var unpackProcent = 0.7f;
 
             Parallel.ForEach(foldersContent, (partFolder, stateJ, j) =>
             {
@@ -234,12 +235,12 @@ namespace AutoTestApp
                         };
                         participant.Solutions.Add(solution);
                         thisProblem.Solutions.Add(solution);
-                        unpacker.ReportProgress(completed * 100 / allFilesCount, (solFile, 1));
+                        unpacker.ReportProgress((int)(completed * 100 / allFilesCount * unpackProcent), (solFile, 1));
                     }
                     catch
                     {
                         Interlocked.Increment(ref incorrectFiles);
-                        unpacker.ReportProgress(completed * 100 / allFilesCount, (solFile, 0));
+                        unpacker.ReportProgress((int)(completed * 100 / allFilesCount * unpackProcent), (solFile, 0));
                     }
                     Interlocked.Increment(ref completed);
                     if (unpacker.CancellationPending)
@@ -254,9 +255,10 @@ namespace AutoTestApp
                 }
                 participants.Add(participant);
             });
+
             if (unpacker.CancellationPending)
             {
-                unpacker.ReportProgress(completed * 100 / allFilesCount, ("Распаковка прервана", 2));
+                unpacker.ReportProgress(100, ("Операция прервана", 2));
                 e.Cancel = true;
             }
             else
@@ -268,8 +270,61 @@ namespace AutoTestApp
                     db.Participants.AddRange(participants);
                     db.SaveChanges();
                 }
-                unpacker.ReportProgress(100, ("Готово", 2));
                 dataAdded = true;
+                List<Solution> allSolutions;
+                using (var db = new TSystemContext())
+                {
+                    allSolutions = db.Solutions.ToList();
+                }
+
+                var ratio = new Ratio(allSolutions, allProblems);
+                completed = 0;
+                foreach (var participant in participants)
+                {
+                    var probsols = ratio.Сorrelate(participant.Id);
+                    foreach (var probsol in probsols)
+                    {
+                        var problemId = probsol.Key;
+                        var solutionId = probsol.Value.Item1;
+                        var prevProblem = allProblems.First(p => p.Solutions.FirstOrDefault(s => s.Id == solutionId) != null);
+                        var solution = participant.Solutions.FirstOrDefault(s => s.Id == solutionId);
+                        prevProblem.Solutions.Remove(solution);
+                        var thisProblem = allProblems.First(p => p.Id == problemId);
+                        thisProblem.Solutions.Add(solution);
+                        solution.Problem = thisProblem;
+                    }
+
+                    unpacker.ReportProgress((int)(100 * unpackProcent + completed * 100 /
+                        allFilesCount * (1 - unpackProcent)), ($"Соотношение заданий и решений {participant.Name}", 1));
+
+                    Interlocked.Increment(ref completed);
+                    if (unpacker.CancellationPending)
+                    {
+                        break;
+                    }
+                }
+                using (var db = new TSystemContext())
+                {
+                    db.Problems.AttachRange(allProblems);
+                    foreach (var problem in allProblems)
+                    {
+                        foreach(var solution in problem.Solutions)
+                        {
+                            db.Solutions.Attach(solution);
+                            db.Entry(solution).Reference("Problem").IsModified = true;
+                        }
+                    }
+                    db.SaveChanges();
+                }
+                if (unpacker.CancellationPending)
+                {
+                    unpacker.ReportProgress(100, ("Операция прервана", 2));
+                    e.Cancel = true;
+                }
+                else
+                {
+                    unpacker.ReportProgress(100, ("Готово", 2));
+                }
             }
         }
 

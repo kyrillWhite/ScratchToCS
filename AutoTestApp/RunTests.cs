@@ -44,7 +44,7 @@ namespace AutoTestApp
                 {
                     solution.TranslationError = $"🚫{e.Message}";
                 }
-                solution.Warnings = String.Join("\r\n", WarningsLogger.PopAllWarnings());
+                solution.Warnings = string.Join("\r\n", WarningsLogger.PopAllWarnings());
                 Interlocked.Increment(ref completed);
             });
             // Компилирование
