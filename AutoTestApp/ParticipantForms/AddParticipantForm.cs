@@ -57,6 +57,7 @@ namespace AutoTestApp
             isBtnCancelUnpack = true;
             pnlSelectAddTypePage.Visible = false;
             btnCloseUnpack.Visible = false;
+            btnCorrelation.Visible = false;
             btnCancelUnpack.Text = "Отмена";
             prbUnpack.Value = 0;
             lbProgressProcents.Text = "0%";
@@ -214,11 +215,13 @@ namespace AutoTestApp
             }
             incorrectFiles = 0;
             var unpackProcent = 0.7f;
+            var lockAddParticipant = new object();
 
             Parallel.ForEach(foldersContent, (partFolder, stateJ, j) =>
             {
                 var (partName, solFiles) = partFolder;
                 var participant = new Participant { Name = partName };
+                var lockAddSolution = new object();
                 var jLoopBreak = false;
                 Parallel.ForEach(solFiles, (solFile, stateI, i) =>
                 {
@@ -233,7 +236,10 @@ namespace AutoTestApp
                             SolutionFile = ScratchToCS.Transpiler.ScratchToJson(solFile),
                             TestPassed = -1,
                         };
-                        participant.Solutions.Add(solution);
+                        lock(lockAddSolution)
+                        {
+                            participant.Solutions.Add(solution);
+                        }
                         thisProblem.Solutions.Add(solution);
                         unpacker.ReportProgress((int)(completed * 100 / allFilesCount * unpackProcent), (solFile, 1));
                     }
@@ -253,7 +259,10 @@ namespace AutoTestApp
                 {
                     stateJ.Break();
                 }
-                participants.Add(participant);
+                lock (lockAddParticipant)
+                {
+                    participants.Add(participant);
+                }
             });
 
             if (unpacker.CancellationPending)
@@ -406,6 +415,7 @@ namespace AutoTestApp
             {
                 btnCancelUnpack.Visible = false;
                 btnCloseUnpack.Visible = true;
+                btnCorrelation.Visible = true;
                 if (rbAddWSolution.Checked)
                 {
                     var solCount = addOneParticFiles.Length;
@@ -414,7 +424,7 @@ namespace AutoTestApp
                         $"Было обнаружено {solCount} решени{DeclensionByNum(solCount)}. " +
                         (createdProbCount <= 0 ? "Создание новых заданий не потребовалось. " :
                             $"В результате чего дополнительно было создано {createdProbCount} задани{DeclensionByNum(createdProbCount)}.\n") +
-                        "Рекомендуется соотнести задания с решениями в меню изменения данных участника из-за различных форматов именования файлов." +
+                        "Задания с решениями были автоматически соотнесены." +
                         (incorrectFiles > 0 ? $"\nНекорректных файлов было обнаружено - {incorrectFiles}. Подробности в поле выше." : "");
                 }
                 else
@@ -426,10 +436,17 @@ namespace AutoTestApp
                         $"Максимальное количество решений - {maxSolCount}. " +
                         (createdProbCount <= 0 ? "Создание новых заданий не потребовалось. " :
                             $"В результате чего дополнительно было создано {createdProbCount} задани{DeclensionByNum(createdProbCount)}.\n") +
-                        "Рекомендуется соотнести задания с решениями в меню изменения данных участников из-за различных форматов именования файлов." +
+                        "Задания с решениями были автоматически соотнесены." +
                         (incorrectFiles > 0 ? $"\nНекорректных файлов было обнаружено - {incorrectFiles}. Подробности в поле выше." : "");
                 }
             }
+        }
+
+        private void btnCorrelation_Click(object sender, EventArgs e)
+        {
+            Close();
+            var ratioForm = new RatioForm();
+            var dialogResult = ratioForm.ShowDialog();
         }
     }
 }

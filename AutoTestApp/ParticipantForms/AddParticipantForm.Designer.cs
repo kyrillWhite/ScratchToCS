@@ -66,6 +66,7 @@ namespace AutoTestApp
             this.pnlUnpackProgress = new System.Windows.Forms.Panel();
             this.tlpProgress = new System.Windows.Forms.TableLayoutPanel();
             this.tlpUnpackButtons = new System.Windows.Forms.TableLayoutPanel();
+            this.btnCorrelation = new System.Windows.Forms.Button();
             this.btnCloseUnpack = new System.Windows.Forms.Button();
             this.btnCancelUnpack = new System.Windows.Forms.Button();
             this.tlpProgressBar = new System.Windows.Forms.TableLayoutPanel();
@@ -553,27 +554,42 @@ namespace AutoTestApp
             // 
             // tlpUnpackButtons
             // 
-            this.tlpUnpackButtons.ColumnCount = 2;
+            this.tlpUnpackButtons.ColumnCount = 3;
             this.tlpUnpackButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpUnpackButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 539F));
             this.tlpUnpackButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlpUnpackButtons.Controls.Add(this.btnCloseUnpack, 1, 0);
+            this.tlpUnpackButtons.Controls.Add(this.btnCloseUnpack, 2, 0);
             this.tlpUnpackButtons.Controls.Add(this.btnCancelUnpack, 0, 0);
+            this.tlpUnpackButtons.Controls.Add(this.btnCorrelation, 1, 0);
             this.tlpUnpackButtons.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpUnpackButtons.Location = new System.Drawing.Point(0, 321);
             this.tlpUnpackButtons.Margin = new System.Windows.Forms.Padding(0);
             this.tlpUnpackButtons.Name = "tlpUnpackButtons";
             this.tlpUnpackButtons.RowCount = 1;
-            this.tlpUnpackButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpUnpackButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpUnpackButtons.Size = new System.Drawing.Size(730, 40);
             this.tlpUnpackButtons.TabIndex = 6;
+            // 
+            // btnCorrelation
+            // 
+            this.btnCorrelation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCorrelation.Location = new System.Drawing.Point(545, 8);
+            this.btnCorrelation.Margin = new System.Windows.Forms.Padding(8);
+            this.btnCorrelation.Name = "btnCorrelation";
+            this.btnCorrelation.Size = new System.Drawing.Size(81, 24);
+            this.btnCorrelation.TabIndex = 7;
+            this.btnCorrelation.Text = "Соотнести";
+            this.btnCorrelation.UseVisualStyleBackColor = true;
+            this.btnCorrelation.Visible = false;
+            this.btnCorrelation.Click += new System.EventHandler(this.btnCorrelation_Click);
             // 
             // btnCloseUnpack
             // 
             this.btnCloseUnpack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCloseUnpack.Location = new System.Drawing.Point(641, 8);
+            this.btnCloseUnpack.Location = new System.Drawing.Point(642, 8);
             this.btnCloseUnpack.Margin = new System.Windows.Forms.Padding(8);
             this.btnCloseUnpack.Name = "btnCloseUnpack";
-            this.btnCloseUnpack.Size = new System.Drawing.Size(81, 24);
+            this.btnCloseUnpack.Size = new System.Drawing.Size(80, 24);
             this.btnCloseUnpack.TabIndex = 6;
             this.btnCloseUnpack.Text = "Завершить";
             this.btnCloseUnpack.UseVisualStyleBackColor = true;
@@ -595,37 +611,38 @@ namespace AutoTestApp
             // tlpProgressBar
             // 
             this.tlpProgressBar.ColumnCount = 3;
-            this.tlpProgressBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tlpProgressBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
-            this.tlpProgressBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tlpProgressBar.Controls.Add(this.prbUnpack, 1, 1);
-            this.tlpProgressBar.Controls.Add(this.lbProgressProcents, 2, 1);
-            this.tlpProgressBar.Controls.Add(this.tbUnpackedFiles, 1, 0);
-            this.tlpProgressBar.Controls.Add(this.lbUnpackRes, 1, 2);
+            this.tlpProgressBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
+            this.tlpProgressBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 75F));
+            this.tlpProgressBar.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.5F));
+            this.tlpProgressBar.Controls.Add(this.prbUnpack, 1, 2);
+            this.tlpProgressBar.Controls.Add(this.lbProgressProcents, 2, 2);
+            this.tlpProgressBar.Controls.Add(this.tbUnpackedFiles, 1, 1);
+            this.tlpProgressBar.Controls.Add(this.lbUnpackRes, 1, 3);
             this.tlpProgressBar.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpProgressBar.Location = new System.Drawing.Point(0, 0);
             this.tlpProgressBar.Margin = new System.Windows.Forms.Padding(0);
             this.tlpProgressBar.Name = "tlpProgressBar";
-            this.tlpProgressBar.RowCount = 3;
-            this.tlpProgressBar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpProgressBar.RowCount = 4;
             this.tlpProgressBar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tlpProgressBar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpProgressBar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpProgressBar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tlpProgressBar.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tlpProgressBar.Size = new System.Drawing.Size(730, 321);
             this.tlpProgressBar.TabIndex = 7;
             // 
             // prbUnpack
             // 
             this.prbUnpack.Dock = System.Windows.Forms.DockStyle.Top;
-            this.prbUnpack.Location = new System.Drawing.Point(149, 148);
+            this.prbUnpack.Location = new System.Drawing.Point(94, 174);
             this.prbUnpack.Name = "prbUnpack";
-            this.prbUnpack.Size = new System.Drawing.Size(432, 24);
+            this.prbUnpack.Size = new System.Drawing.Size(541, 24);
             this.prbUnpack.Step = 1;
             this.prbUnpack.TabIndex = 0;
             // 
             // lbProgressProcents
             // 
             this.lbProgressProcents.AutoSize = true;
-            this.lbProgressProcents.Location = new System.Drawing.Point(587, 148);
+            this.lbProgressProcents.Location = new System.Drawing.Point(641, 174);
             this.lbProgressProcents.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.lbProgressProcents.Name = "lbProgressProcents";
             this.lbProgressProcents.Size = new System.Drawing.Size(23, 15);
@@ -636,20 +653,20 @@ namespace AutoTestApp
             // 
             this.tbUnpackedFiles.BackColor = System.Drawing.SystemColors.Window;
             this.tbUnpackedFiles.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbUnpackedFiles.Location = new System.Drawing.Point(154, 8);
+            this.tbUnpackedFiles.Location = new System.Drawing.Point(99, 38);
             this.tbUnpackedFiles.Margin = new System.Windows.Forms.Padding(8);
             this.tbUnpackedFiles.MaxLength = 82767;
             this.tbUnpackedFiles.Multiline = true;
             this.tbUnpackedFiles.Name = "tbUnpackedFiles";
             this.tbUnpackedFiles.ReadOnly = true;
             this.tbUnpackedFiles.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbUnpackedFiles.Size = new System.Drawing.Size(422, 129);
+            this.tbUnpackedFiles.Size = new System.Drawing.Size(531, 125);
             this.tbUnpackedFiles.TabIndex = 2;
             // 
             // lbUnpackRes
             // 
             this.lbUnpackRes.AutoSize = true;
-            this.lbUnpackRes.Location = new System.Drawing.Point(149, 178);
+            this.lbUnpackRes.Location = new System.Drawing.Point(94, 204);
             this.lbUnpackRes.Margin = new System.Windows.Forms.Padding(3);
             this.lbUnpackRes.Name = "lbUnpackRes";
             this.lbUnpackRes.Size = new System.Drawing.Size(0, 15);
@@ -937,5 +954,6 @@ namespace AutoTestApp
         private System.Windows.Forms.TableLayoutPanel tlpUnpackButtons;
         private System.Windows.Forms.Button btnCloseUnpack;
         private System.Windows.Forms.Label lbUnpackRes;
+        private System.Windows.Forms.Button btnCorrelation;
     }
 }

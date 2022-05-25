@@ -31,6 +31,7 @@ namespace AutoTestApp
             // Транспилирование
             var completed = 0;
             var transpiledSolutions = new Dictionary<Solution, Expression<Func<CancellationToken, List<object>, List<object>>>>();
+            var lockAddfuncExpression = new object();
             Parallel.ForEach(solutions, (solution) =>
             {
                 bwMain.ReportProgress((int)(0.3 * completed * 100 / solutions.Count), "Транспиляция");
@@ -38,7 +39,10 @@ namespace AutoTestApp
                 {
                     var dScratch = Transpiler.JsonToDScratch(solution.SolutionFile);
                     var funcExpression = Transpiler.DScratchToExpression(dScratch);
-                    transpiledSolutions[solution] = funcExpression;
+                    lock(lockAddfuncExpression)
+                    {
+                        transpiledSolutions[solution] = funcExpression;
+                    }
                 }
                 catch (Exception e)
                 {
@@ -50,13 +54,17 @@ namespace AutoTestApp
             // Компилирование
             completed = 0;
             var compiledSolutions = new Dictionary<Solution, Func<CancellationToken, List<object>, List<object>>>();
+            var lockAddfunc = new object();
             Parallel.ForEach(transpiledSolutions, (solutionPair) =>
             {
                 bwMain.ReportProgress((int)(30 + 0.1 * completed * 100 / solutions.Count), "Компиляция");
                 try
                 {
                     var func = Transpiler.Compile(solutionPair.Value);
-                    compiledSolutions[solutionPair.Key] = func;
+                    lock (lockAddfunc)
+                    {
+                        compiledSolutions[solutionPair.Key] = func;
+                    }
                 }
                 catch (Exception e)
                 {
