@@ -69,7 +69,7 @@ namespace AutoTestApp
             }
             names.RemoveAll(s => char.IsDigit(s[0]) || 
                 (s.Length > 2 && s[0] == '(' && char.IsDigit(s[1])) || 
-                WordToNum(s) != -1 || s == "задание" || s == "задача" || 
+                WordToNum(s) != -1 || s.Contains("задани") || s.Contains("задач") || 
                 s == "проект" || s == "scratch");
             Words = names;
         }
