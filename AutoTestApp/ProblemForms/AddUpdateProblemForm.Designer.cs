@@ -32,17 +32,17 @@ namespace AutoTestApp
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.gbCost = new System.Windows.Forms.GroupBox();
             this.nudCost = new System.Windows.Forms.NumericUpDown();
+            this.gbName = new System.Windows.Forms.GroupBox();
+            this.tbName = new System.Windows.Forms.TextBox();
             this.tlpLow = new System.Windows.Forms.TableLayoutPanel();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
-            this.gbName = new System.Windows.Forms.GroupBox();
-            this.tbName = new System.Windows.Forms.TextBox();
             this.cbByTest = new System.Windows.Forms.CheckBox();
             this.tlpMain.SuspendLayout();
             this.gbCost.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudCost)).BeginInit();
-            this.tlpLow.SuspendLayout();
             this.gbName.SuspendLayout();
+            this.tlpLow.SuspendLayout();
             this.SuspendLayout();
             // 
             // tlpMain
@@ -89,6 +89,25 @@ namespace AutoTestApp
             0,
             0});
             // 
+            // gbName
+            // 
+            this.gbName.Controls.Add(this.tbName);
+            this.gbName.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gbName.Location = new System.Drawing.Point(3, 3);
+            this.gbName.Name = "gbName";
+            this.gbName.Size = new System.Drawing.Size(195, 46);
+            this.gbName.TabIndex = 3;
+            this.gbName.TabStop = false;
+            this.gbName.Text = "Название";
+            // 
+            // tbName
+            // 
+            this.tbName.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbName.Location = new System.Drawing.Point(3, 19);
+            this.tbName.Name = "tbName";
+            this.tbName.Size = new System.Drawing.Size(189, 23);
+            this.tbName.TabIndex = 0;
+            // 
             // tlpLow
             // 
             this.tlpLow.ColumnCount = 2;
@@ -127,25 +146,6 @@ namespace AutoTestApp
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
-            // gbName
-            // 
-            this.gbName.Controls.Add(this.tbName);
-            this.gbName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gbName.Location = new System.Drawing.Point(3, 3);
-            this.gbName.Name = "gbName";
-            this.gbName.Size = new System.Drawing.Size(195, 46);
-            this.gbName.TabIndex = 3;
-            this.gbName.TabStop = false;
-            this.gbName.Text = "Название";
-            // 
-            // tbName
-            // 
-            this.tbName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbName.Location = new System.Drawing.Point(3, 19);
-            this.tbName.Name = "tbName";
-            this.tbName.Size = new System.Drawing.Size(189, 23);
-            this.tbName.TabIndex = 0;
-            // 
             // cbByTest
             // 
             this.cbByTest.AutoSize = true;
@@ -163,6 +163,7 @@ namespace AutoTestApp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(201, 166);
             this.Controls.Add(this.tlpMain);
+            this.MinimumSize = new System.Drawing.Size(168, 202);
             this.Name = "AddUpdateProblemForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AddUpdateProblemForm_FormClosing);
@@ -170,9 +171,9 @@ namespace AutoTestApp
             this.tlpMain.PerformLayout();
             this.gbCost.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.nudCost)).EndInit();
-            this.tlpLow.ResumeLayout(false);
             this.gbName.ResumeLayout(false);
             this.gbName.PerformLayout();
+            this.tlpLow.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

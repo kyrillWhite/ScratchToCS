@@ -496,6 +496,7 @@ namespace AutoTestApp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(597, 450);
             this.Controls.Add(this.tlpMain);
+            this.MinimumSize = new System.Drawing.Size(377, 264);
             this.Name = "ProblemsTestsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Задания";

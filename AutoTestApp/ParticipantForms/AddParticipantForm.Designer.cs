@@ -66,9 +66,9 @@ namespace AutoTestApp
             this.pnlUnpackProgress = new System.Windows.Forms.Panel();
             this.tlpProgress = new System.Windows.Forms.TableLayoutPanel();
             this.tlpUnpackButtons = new System.Windows.Forms.TableLayoutPanel();
-            this.btnCorrelation = new System.Windows.Forms.Button();
             this.btnCloseUnpack = new System.Windows.Forms.Button();
             this.btnCancelUnpack = new System.Windows.Forms.Button();
+            this.btnCorrelation = new System.Windows.Forms.Button();
             this.tlpProgressBar = new System.Windows.Forms.TableLayoutPanel();
             this.prbUnpack = new System.Windows.Forms.ProgressBar();
             this.lbProgressProcents = new System.Windows.Forms.Label();
@@ -555,9 +555,9 @@ namespace AutoTestApp
             // tlpUnpackButtons
             // 
             this.tlpUnpackButtons.ColumnCount = 3;
-            this.tlpUnpackButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tlpUnpackButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 539F));
-            this.tlpUnpackButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpUnpackButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tlpUnpackButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpUnpackButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tlpUnpackButtons.Controls.Add(this.btnCloseUnpack, 2, 0);
             this.tlpUnpackButtons.Controls.Add(this.btnCancelUnpack, 0, 0);
             this.tlpUnpackButtons.Controls.Add(this.btnCorrelation, 1, 0);
@@ -569,19 +569,6 @@ namespace AutoTestApp
             this.tlpUnpackButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpUnpackButtons.Size = new System.Drawing.Size(730, 40);
             this.tlpUnpackButtons.TabIndex = 6;
-            // 
-            // btnCorrelation
-            // 
-            this.btnCorrelation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCorrelation.Location = new System.Drawing.Point(545, 8);
-            this.btnCorrelation.Margin = new System.Windows.Forms.Padding(8);
-            this.btnCorrelation.Name = "btnCorrelation";
-            this.btnCorrelation.Size = new System.Drawing.Size(81, 24);
-            this.btnCorrelation.TabIndex = 7;
-            this.btnCorrelation.Text = "Соотнести";
-            this.btnCorrelation.UseVisualStyleBackColor = true;
-            this.btnCorrelation.Visible = false;
-            this.btnCorrelation.Click += new System.EventHandler(this.btnCorrelation_Click);
             // 
             // btnCloseUnpack
             // 
@@ -607,6 +594,19 @@ namespace AutoTestApp
             this.btnCancelUnpack.Text = "Отмена";
             this.btnCancelUnpack.UseVisualStyleBackColor = true;
             this.btnCancelUnpack.Click += new System.EventHandler(this.btnCancelUnpack_Click);
+            // 
+            // btnCorrelation
+            // 
+            this.btnCorrelation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCorrelation.Location = new System.Drawing.Point(541, 8);
+            this.btnCorrelation.Margin = new System.Windows.Forms.Padding(8);
+            this.btnCorrelation.Name = "btnCorrelation";
+            this.btnCorrelation.Size = new System.Drawing.Size(81, 24);
+            this.btnCorrelation.TabIndex = 7;
+            this.btnCorrelation.Text = "Соотнести";
+            this.btnCorrelation.UseVisualStyleBackColor = true;
+            this.btnCorrelation.Visible = false;
+            this.btnCorrelation.Click += new System.EventHandler(this.btnCorrelation_Click);
             // 
             // tlpProgressBar
             // 
@@ -844,6 +844,7 @@ namespace AutoTestApp
             this.ClientSize = new System.Drawing.Size(730, 361);
             this.Controls.Add(this.pnlUnpackProgress);
             this.Controls.Add(this.pnlSelectAddTypePage);
+            this.MinimumSize = new System.Drawing.Size(313, 313);
             this.Name = "AddParticipantForm";
             this.Text = "Добавить участника";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.AddParticipantForm_FormClosed);

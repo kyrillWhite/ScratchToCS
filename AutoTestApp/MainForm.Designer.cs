@@ -447,6 +447,7 @@ namespace AutoTestApp
             this.Controls.Add(this.tlpMain);
             this.Controls.Add(this.msMain);
             this.MainMenuStrip = this.msMain;
+            this.MinimumSize = new System.Drawing.Size(325, 371);
             this.Name = "MainForm";
             this.Text = "UNTITLED - Система тестирования программ Scratch";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
