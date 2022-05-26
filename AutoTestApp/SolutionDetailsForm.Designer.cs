@@ -29,7 +29,7 @@ namespace AutoTestApp
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tlpLeftSide = new System.Windows.Forms.TableLayoutPanel();
             this.dgvTests = new System.Windows.Forms.DataGridView();
             this.dgvcTest = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -94,14 +94,14 @@ namespace AutoTestApp
             this.dgvTests.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.dgvcTest,
             this.dgvcError});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvTests.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvTests.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgvTests.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvTests.Location = new System.Drawing.Point(3, 3);
             this.dgvTests.MultiSelect = false;
@@ -334,6 +334,7 @@ namespace AutoTestApp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(393, 505);
             this.Controls.Add(this.tlpMain1);
+            this.MinimumSize = new System.Drawing.Size(274, 342);
             this.Name = "SolutionDetailsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.tlpLeftSide.ResumeLayout(false);

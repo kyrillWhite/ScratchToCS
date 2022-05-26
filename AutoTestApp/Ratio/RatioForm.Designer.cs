@@ -83,9 +83,9 @@ namespace AutoTestApp
             // tlpOKCancel
             // 
             this.tlpOKCancel.ColumnCount = 3;
-            this.tlpOKCancel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9.723546F));
-            this.tlpOKCancel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 56.81602F));
-            this.tlpOKCancel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tlpOKCancel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tlpOKCancel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpOKCancel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tlpOKCancel.Controls.Add(this.btnUpdate, 0, 0);
             this.tlpOKCancel.Controls.Add(this.btnOK, 0, 0);
             this.tlpOKCancel.Controls.Add(this.btnCancel, 2, 0);
@@ -101,7 +101,7 @@ namespace AutoTestApp
             // btnUpdate
             // 
             this.btnUpdate.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnUpdate.Location = new System.Drawing.Point(105, 3);
+            this.btnUpdate.Location = new System.Drawing.Point(103, 3);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(85, 24);
             this.btnUpdate.TabIndex = 2;
@@ -137,6 +137,7 @@ namespace AutoTestApp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1049, 534);
             this.Controls.Add(this.tlpMain);
+            this.MinimumSize = new System.Drawing.Size(305, 145);
             this.Name = "RatioForm";
             this.Text = "Соотношение заданий и решений";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.RatioForm_FormClosing);

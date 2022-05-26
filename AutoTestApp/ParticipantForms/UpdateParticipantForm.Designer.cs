@@ -225,6 +225,7 @@ namespace AutoTestApp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(273, 450);
             this.Controls.Add(this.tlpMain);
+            this.MinimumSize = new System.Drawing.Size(159, 264);
             this.Name = "UpdateParticipantForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UpdateParticipantForm_FormClosing);
