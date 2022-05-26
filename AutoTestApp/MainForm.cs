@@ -94,7 +94,7 @@ namespace AutoTestApp
                 }
 
                 var cellProblem = db.Problems.Include(p => p.Tests).FirstOrDefault(p => p.Num == cell.ColumnIndex - 1);
-                var cellSolution = db.Solutions.FirstOrDefault(s =>
+                var cellSolution = db.Solutions.Include(s => s.TestResults).FirstOrDefault(s =>
                     s.ProblemId == cellProblem.Id && s.ParticipantId == participant.Id);
                 SetCellStyle(cell, cellSolution);
             }
@@ -104,13 +104,17 @@ namespace AutoTestApp
         {
             if (solution != null)
             {
-                if (solution.TestPassed == -1)
+                if (solution.TestPassed == -1 || (string.IsNullOrEmpty(solution.TranslationError) && 
+                    solution.TestResults.Count < solution.Problem.Tests.Count))
                 {
+                    var testResultCount = solution.TestPassed <= 0 ? "?" : 
+                        solution.TestPassed.ToString();
                     cell.Style.BackColor = Color.LightGoldenrodYellow;
                     cell.Style.ForeColor = Color.Black;
-                    cell.Value = $"?/{solution.Problem.Tests.Count}";
+                    cell.Value = $"{testResultCount}/{solution.Problem.Tests.Count}";
                 }
-                else if (solution.TestPassed < solution.Problem.Tests.Count)
+                else if (solution.TestPassed < solution.Problem.Tests.Count || 
+                    solution.Problem.Tests.Count == 0)
                 {
                     if (solution.Problem.ByTest)
                     {
@@ -127,7 +131,7 @@ namespace AutoTestApp
                         cell.Style.BackColor = Color.IndianRed;
                     }
                     cell.Style.ForeColor = Color.Black;
-                    cell.Value = $"{solution.TestPassed}/{solution.Problem.Tests.Count}";
+                    cell.Value = $"{Math.Min(solution.TestPassed, solution.Problem.Tests.Count)}/{solution.Problem.Tests.Count}";
                 }
                 else
                 {
