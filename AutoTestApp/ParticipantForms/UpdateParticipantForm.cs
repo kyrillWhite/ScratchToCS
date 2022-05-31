@@ -25,6 +25,7 @@ namespace AutoTestApp
             InitializeComponent();
             participant = _participant;
             UpdateDgvSolutions();
+            UpdateUpdDelBtnEnable();
             tbName.Text = participant.Name;
             Text = $"{participant.Name} - Изменение данных участника";
         }
@@ -131,6 +132,7 @@ namespace AutoTestApp
             else
             {
                 AddSolution(problem, e.RowIndex);
+                Cursor = Cursors.Default;
             }
         }
 
