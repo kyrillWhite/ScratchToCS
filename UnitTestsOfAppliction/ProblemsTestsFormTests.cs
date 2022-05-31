@@ -240,13 +240,7 @@ namespace UnitTestsOfAppliction
             session.FindElementByName("Все папки").Click();
             var addresField = session.FindElementByName("Адрес");
             addresField.SendKeys(TestFilesPath + @"tests");
-            (new Actions(session)).SendKeys(Keys.Enter).Perform();
-            session.FindElementByName("1.txt").Click();
-            (new Actions(session))
-                .KeyDown(Keys.LeftShift)
-                .Click(session.FindElementByName("2.txt"))
-                .KeyUp(Keys.LeftShift)
-                .Perform();
+            session.FindElementByAccessibilityId("1148").SendKeys("\"1.txt\" \"2.txt\"");
             session.FindElementByName("Открыть").Click();
 
             var tbInputData = session.FindElementByAccessibilityId("tbInputData");
@@ -254,14 +248,14 @@ namespace UnitTestsOfAppliction
             var test1 = session.FindElementByName("Тест Строка 0");
             test1.Click();
             Assert.AreEqual(test1.GetAttribute("Value.Value"), "Тест 1");
-            Assert.AreEqual(tbInputData.GetAttribute("Value.Value"), "2");
-            Assert.AreEqual(tbOutputData.GetAttribute("Value.Value"), "2");
+            Assert.AreEqual(tbInputData.GetAttribute("Value.Value"), "1");
+            Assert.AreEqual(tbOutputData.GetAttribute("Value.Value"), "1");
 
             var test2 = session.FindElementByName("Тест Строка 1");
             test2.Click();
             Assert.AreEqual(test2.GetAttribute("Value.Value"), "Тест 2");
-            Assert.AreEqual(tbInputData.GetAttribute("Value.Value"), "1");
-            Assert.AreEqual(tbOutputData.GetAttribute("Value.Value"), "1");
+            Assert.AreEqual(tbInputData.GetAttribute("Value.Value"), "2");
+            Assert.AreEqual(tbOutputData.GetAttribute("Value.Value"), "2");
 
             session.FindElementByAccessibilityId("btnOK").Click();
         }
