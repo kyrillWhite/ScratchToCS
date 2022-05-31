@@ -79,7 +79,7 @@ namespace AutoTestApp
 
 
             var resultScore = solutions.Sum(s =>
-                s.Problem.Tests.Count > 0 ?
+                s.Problem.Tests.Count > 0 && s.TestPassed != -1 ?
                     (s.Problem.ByTest ? s.Problem.Cost / s.Problem.Tests.Count * s.TestPassed :
                         (s.TestPassed == s.Problem.Tests.Count ? s.Problem.Cost : 0)) : 0);
             dgvTestResults.Rows[rowIdx].Cells["dgvcResult"].Value = resultScore;
@@ -276,14 +276,22 @@ namespace AutoTestApp
             else
             {
                 using var db = new TSystemContext();
-                var solution = db.Solutions
+                var participant = db.Entry((Participant)dgvTestResults.Rows[e.RowIndex].Tag).Entity;
+                var solutions = db.Solutions
                     .Include(s => s.TestResults)
                     .Include(s => s.Problem)
                     .Include(s => s.Problem.Tests)
-                    .FirstOrDefault(s => s.Id == ((Solution)cell.Tag).Id);
+                    .Where(s => s.ParticipantId == participant.Id)
+                    .ToList();
+                var solution = solutions.FirstOrDefault(s => s.Id == ((Solution)cell.Tag).Id);
                 var solutionDetails = new SolutionDetailsForm(solution);
                 solutionDetails.ShowDialog();
                 SetCellStyle(cell, db.Solutions.Contains(solution) ? solution : null);
+                var resultScore = solutions.Sum(s =>
+                s.Problem.Tests.Count > 0 && s.TestPassed != -1 ?
+                    (s.Problem.ByTest ? s.Problem.Cost / s.Problem.Tests.Count * s.TestPassed :
+                        (s.TestPassed == s.Problem.Tests.Count ? s.Problem.Cost : 0)) : 0);
+                dgvTestResults.Rows[e.RowIndex].Cells["dgvcResult"].Value = resultScore;
             }
         }
 
@@ -562,7 +570,7 @@ namespace AutoTestApp
         {
             if (dataChanged)
             {
-                var dialogResult = MessageBox.Show("Сохранить сессию?", "Заврешение работы",
+                var dialogResult = MessageBox.Show("Сохранить сессию?", "Завершение работы",
                     MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                 if (dialogResult == DialogResult.Yes)
                 {

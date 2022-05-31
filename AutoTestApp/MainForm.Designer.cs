@@ -30,7 +30,7 @@ namespace AutoTestApp
         private void InitializeComponent()
         {
             this.msMain = new System.Windows.Forms.MenuStrip();
-            this.файлToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiFile = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiCreate = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiOpen = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiSave = new System.Windows.Forms.ToolStripMenuItem();
@@ -78,7 +78,7 @@ namespace AutoTestApp
             // msMain
             // 
             this.msMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.файлToolStripMenuItem,
+            this.tsmiFile,
             this.tsmiParticipants,
             this.tsmiProblemsTests,
             this.tsmiSolutions});
@@ -88,18 +88,18 @@ namespace AutoTestApp
             this.msMain.TabIndex = 0;
             this.msMain.Text = "menuStrip1";
             // 
-            // файлToolStripMenuItem
+            // tsmiFile
             // 
-            this.файлToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiCreate,
             this.tsmiOpen,
             this.tsmiSave,
             this.tsmiSaveAs,
             this.toolStripSeparator2,
             this.tsmiExit});
-            this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
-            this.файлToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
-            this.файлToolStripMenuItem.Text = "Файл";
+            this.tsmiFile.Name = "tsmiFile";
+            this.tsmiFile.Size = new System.Drawing.Size(48, 20);
+            this.tsmiFile.Text = "Файл";
             // 
             // tsmiCreate
             // 
@@ -469,7 +469,7 @@ namespace AutoTestApp
         #endregion
 
         private System.Windows.Forms.MenuStrip msMain;
-        private System.Windows.Forms.ToolStripMenuItem файлToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tsmiFile;
         private System.Windows.Forms.TableLayoutPanel tlpMain;
         private System.Windows.Forms.DataGridView dgvTestResults;
         private System.Windows.Forms.ToolStripMenuItem tsmiCreate;
