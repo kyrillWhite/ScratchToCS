@@ -125,6 +125,7 @@ namespace AutoTestApp
             UpdateDgvTests();
             tbErrors.Text = (string.IsNullOrEmpty(solution.TranslationError) ? "" :
                 $"{solution.TranslationError}\r\n") + solution.Warnings;
+            UpdateButtons();
         }
     }
 }

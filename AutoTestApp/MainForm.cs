@@ -286,6 +286,10 @@ namespace AutoTestApp
                 var solution = solutions.FirstOrDefault(s => s.Id == ((Solution)cell.Tag).Id);
                 var solutionDetails = new SolutionDetailsForm(solution);
                 solutionDetails.ShowDialog();
+                if (!db.Solutions.Contains(solution))
+                {
+                    DataChange();
+                }
                 SetCellStyle(cell, db.Solutions.Contains(solution) ? solution : null);
                 var resultScore = solutions.Sum(s =>
                 s.Problem.Tests.Count > 0 && s.TestPassed != -1 ?
