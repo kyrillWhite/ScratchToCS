@@ -54,7 +54,8 @@ namespace AutoTestApp
             {
                 var rowIdx = dgvProblems.Rows.Add(
                     problem.Name,
-                    problem.ByTest ? $"по {problem.Cost / problem.Tests.Count} за тест" : problem.Cost,
+                    problem.ByTest ? (problem.Tests.Count == 0 ? "по ? за тест" :
+                        $"по {problem.Cost / problem.Tests.Count} за тест") : problem.Cost,
                     problem.Tests.Count);
                 dgvProblems.Rows[rowIdx].Tag = problem;
             }
@@ -334,11 +335,13 @@ namespace AutoTestApp
             var addUpdateProblemForm = new AddUpdateProblemForm(problem, true);
             if (addUpdateProblemForm.ShowDialog() == DialogResult.OK)
             {
-                var rowIdx = dgvProblems.Rows.Add(
+                var row = (DataGridViewRow)dgvProblems.RowTemplate.Clone();
+                row.CreateCells(dgvProblems,
                     problem.Name,
                     problem.ByTest ? "по ? за тест" : problem.Cost,
                     0);
-                dgvProblems.Rows[rowIdx].Tag = problem;
+                row.Tag = problem;
+                dgvProblems.Rows.Add(row);
                 DataChanged();
                 UpdateUpdDelBtnEnable();
             }
