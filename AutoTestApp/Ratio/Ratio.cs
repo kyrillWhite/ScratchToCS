@@ -21,8 +21,8 @@ namespace AutoTestApp
 
         private float CompareWords(string str1, string str2)
         {
-            var a = (float)str1.Length;
-            var b = (float)str2.Length;
+            var a = (float)str1.Distinct().Count();
+            var b = (float)str2.Distinct().Count();
             var c = (float)str1.Intersect(str2).Count();
             return c / (a + b - c);
         }
