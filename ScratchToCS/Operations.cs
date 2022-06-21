@@ -96,7 +96,10 @@ namespace ScratchToCS
 
         public static void AddToList(ref List<object> list, dynamic obj)
         {
-            list.Add(ToString(obj));
+            if (list.Count < 200000)
+            {
+                list.Add(ToString(obj));
+            }
         }
 
         public static void DeleteOfList(ref List<object> list, dynamic index)
